@@ -1,0 +1,5 @@
+Colour Pallete
+#4A102A
+#85193C
+#C5172E
+#FCF259
