@@ -1,0 +1,47 @@
+﻿using Eshop.Server.Models;
+using Eshop.Server.Models.DTO;
+using Eshop.Server.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Eshop.Server.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
+    {
+        private readonly UserService userService;
+        public UserController(UserService userService)
+        {
+            this.userService = userService;
+        }
+
+        [HttpPost]
+        [Route("create")]
+        public IActionResult CreateUser([FromBody] UserDto dto)
+        {
+
+            User user = new User();
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            }
+            else if (!string.IsNullOrEmpty(dto.Oauth2Provider) && dto.Oauth2UserId.HasValue)
+            {
+                user.Oauth2Provider = dto.Oauth2Provider;
+                user.Oauth2UserId = dto.Oauth2UserId;
+            }
+            else
+            {
+                return BadRequest("Either password or OAuth info must be provided.");
+            }
+            user.Email = dto.Email;
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.CreatedAt = DateTime.UtcNow;
+ 
+            return Ok(this.userService.AddUser(user));
+        }
+    }
+}

@@ -1,0 +1,27 @@
+<nav class="bg-[#4A102A] text-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0 text-xl font-bold text-[#FCF259]">
+        E-Shop
+      </div>
+
+      <!-- Links -->
+      <div class="hidden md:flex space-x-4">
+        <a href="#" class="text-white hover:text-[#FCF259]">Home</a>
+        <a href="#" class="text-white hover:text-[#FCF259]">Shop</a>
+        <a href="#" class="text-white hover:text-[#FCF259]">About</a>
+        <a href="#" class="text-white hover:text-[#FCF259]">Contact</a>
+      </div>
+
+      <!-- Button -->
+      <div class="hidden md:block">
+        <button *ngIf="!(authService.isLoggedIn$ | async)"
+                class="bg-[#C5172E] hover:bg-[#85193C] text-white px-4 py-2 rounded"
+                (click)="redirectToLogin()">
+          Login
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
