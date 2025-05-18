@@ -17,13 +17,25 @@ namespace Eshop.Server.Services
             return context.Users.SingleOrDefault(u => u.Email == Email);
         }
 
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public User? AddUser(User user)
         {
-            var addedUser = context.Users.Add(user);
-
-            context.SaveChanges();
-
-            return addedUser.Entity;
+            try
+            {
+                var addedUser = context.Users.Add(user);
+                context.SaveChanges();
+                return addedUser.Entity;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Failed to add user: {ex.Message}");
+                return null;
+            }
         }
+
     }
 }

@@ -9,11 +9,18 @@ import { Router } from '@angular/router';
   styleUrl: './nav-bar.component.css'
 })
 export class NavBarComponent {
+  productsDropdown = false;
+  userDropdown = false;
+
   constructor(public authService: AuthService, private router: Router){}
+  
 
 
   redirectToLogin(): void {
     this.router.navigate(['/login']);
   }
 
+  logout(): void {
+    this.authService.logout();
+  }
 }

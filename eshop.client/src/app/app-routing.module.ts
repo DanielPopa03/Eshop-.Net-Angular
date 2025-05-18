@@ -4,6 +4,10 @@ import { LoginPageComponent } from './login-page/login-page.component';
 import { ProductPageComponent } from './product-page/product-page.component';
 import { AuthService } from '../services/auth-service/auth.service';
 import { CookieService } from 'ngx-cookie-service';
+import { RoleGuard } from '../guards/role.guard';
+import { AdminComponent } from './admin/admin.component';
+import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
 
 export function initializeAuth(authService: AuthService) {
   return () => authService.init();
@@ -11,7 +15,10 @@ export function initializeAuth(authService: AuthService) {
 
 const routes: Routes = [
   { path: 'login', component: LoginPageComponent },
-  { path: 'product', component: ProductPageComponent }
+  { path: 'admin', component: AdminComponent, canActivate: [RoleGuard], data: { role: 'Admin' } }, 
+  { path: 'product', component: ProductPageComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
 ];
 
 @NgModule({

@@ -8,19 +8,28 @@ import { AppComponent } from './app.component';
 import { ProductPageComponent } from './product-page/product-page.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
+import { AdminComponent } from './admin/admin.component';
+import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-password.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginPageComponent,
     ProductPageComponent,
-    NavBarComponent
+    NavBarComponent,
+    AdminComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

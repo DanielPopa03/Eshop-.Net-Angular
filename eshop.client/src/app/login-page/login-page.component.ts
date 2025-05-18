@@ -3,6 +3,8 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { UserService } from '../../services/user/user.service';
 import { LoginDto } from '../../models/DTO/login-dto/login-dto';
 import { UserDto } from '../../models/DTO/user-dto/user-dto';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login-page',
@@ -22,11 +24,26 @@ export class LoginPageComponent {
   phoneNumber: string = '';
   passwordSignIn: string = '';
 
-  constructor(private authService: AuthService, private userService: UserService) {}
+  constructor(private authService: AuthService,
+    private userService: UserService, private router: Router,
+    private snackBar: MatSnackBar) { }
+
+  isLoading = false;
 
   onLoginSubmit(): void {
-    this.authService.login(new LoginDto(this.email, this.password))
+    this.isLoading = true;
+    this.authService.login(new LoginDto(this.email, this.password)).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        this.router.navigate(['/']);
+      },
+      error: (err: any) => {
+        const msg = err?.error?.message || 'Invalid credentials.';
+        this.snackBar.open(msg, 'Close', { duration: 3000, panelClass: ['bg-red-600', 'text-white'] });
+      }
+    });
   }
+
 
   onSignUpSubmit(): void {
     let userDto = new UserDto({

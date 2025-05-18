@@ -1,27 +1,62 @@
 <nav class="bg-[#4A102A] text-white shadow-md">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <div class="flex-shrink-0 text-xl font-bold text-[#FCF259]">
-        E-Shop
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4">
+
+      <!-- Top Row: Logo and Products -->
+      <div class="flex items-center space-x-4">
+        <!-- Logo -->
+        <a routerLink="/" class="text-xl font-bold text-[#FCF259] hover:opacity-90">E-Shop</a>
+
+        <!-- Products Dropdown -->
+        <div class="relative group">
+          <button class="text-[#FCF259] font-medium px-2 py-1 rounded-md group-hover:bg-[#FCF259] group-hover:text-[#4A102A] transition duration-200">
+            Products
+          </button>
+          <div class="absolute hidden group-hover:flex flex-col bg-[#C5172E] text-[#FCF259] rounded shadow-md top-full mt-0 py-2 w-40 z-50">
+            <a routerLink="/product" class="block px-4 py-2 hover:bg-[#85193C]">All Products</a>
+            <a routerLink="/categories" class="block px-4 py-2 hover:bg-[#85193C]">Categories</a>
+            <a routerLink="/deals" class="block px-4 py-2 hover:bg-[#85193C]">Deals</a>
+          </div>
+        </div>
       </div>
 
-      <!-- Links -->
-      <div class="hidden md:flex space-x-4">
-        <a href="#" class="text-white hover:text-[#FCF259]">Home</a>
-        <a href="#" class="text-white hover:text-[#FCF259]">Shop</a>
-        <a href="#" class="text-white hover:text-[#FCF259]">About</a>
-        <a href="#" class="text-white hover:text-[#FCF259]">Contact</a>
+      <!-- Bottom Row: Search, User, Basket -->
+      <div class="flex items-center flex-wrap space-x-4 mt-4 sm:mt-0">
+        <!-- Search -->
+        <div class="relative w-full sm:w-auto">
+          <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            🔍
+          </span>
+          <input type="text"
+                 placeholder="Search..."
+                 class="pl-9 pr-3 py-2 w-full rounded-full border focus:outline-none focus:ring-2 focus:ring-[#FCF259] text-black" />
+        </div>
+
+
+        <!-- User Auth Section -->
+        <ng-container *ngIf="authService.isLoggedIn$ | async; else loginButton">
+          <!-- User Icon Dropdown -->
+          <div class="relative group">
+            <img src="/user.svg" alt="User" class="w-6 h-6 cursor-pointer" />
+            <div class="absolute hidden group-hover:flex flex-col right-0 bg-[#C5172E] text-[#FCF259] rounded shadow-md top-full mt-0 py-2 w-32 z-50">
+              <a routerLink="/settings" class="block px-4 py-2 hover:bg-[#85193C]">Settings</a>
+              <button (click)="logout()" class="block w-full text-left px-4 py-2 hover:bg-[#85193C]">Logout</button>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Login Button -->
+        <ng-template #loginButton>
+          <button (click)="redirectToLogin()"
+                  class="text-[#FCF259] border border-[#FCF259] px-4 py-1 rounded-md hover:bg-[#FCF259] hover:text-[#4A102A] transition duration-200">
+            Login
+          </button>
+        </ng-template>
+
+        <!-- Basket Icon -->
+        <img src="/basket.svg" alt="Basket" class="w-6 h-6 cursor-pointer" />
       </div>
 
-      <!-- Button -->
-      <div class="hidden md:block">
-        <button *ngIf="!(authService.isLoggedIn$ | async)"
-                class="bg-[#C5172E] hover:bg-[#85193C] text-white px-4 py-2 rounded"
-                (click)="redirectToLogin()">
-          Login
-        </button>
-      </div>
     </div>
   </div>
 </nav>

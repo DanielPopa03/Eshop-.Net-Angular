@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { jwtDecode } from 'jwt-decode';
 import { UserInfo } from '../../models/DTO/user-info/user-info';
@@ -12,7 +12,7 @@ const JWT_COOKIE_NAME = "Auth_Tok_Eshop";
   providedIn: 'root'
 })
 export class AuthService {
-  public isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   private userSubject = new BehaviorSubject<UserInfo | null>(null);
 
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
@@ -48,24 +48,37 @@ export class AuthService {
   }
 
 
-  login(dto: LoginDto): void {
-    this.http.post<any>('https://localhost:7060/login', dto).subscribe(
-      (response) => {
+  login(dto: LoginDto): Observable<any> {
+    return this.http.post<any>('https://localhost:7060/login', dto).pipe(
+      tap(response => {
         const token = response.token;
         if (token) {
           this.setToken(token);
-          this.loadAuthState(); 
+          this.loadAuthState();
         }
-      },
-      (error) => {
-        console.error('Login failed', error);
-      }
+      })
     );
   }
+
 
   logout(): void {
     this.clearToken();
     this.clearState();
+  }
+
+  requestPasswordReset(email: string): Observable<string> {
+    return this.http.post('https://localhost:7060/request-password-reset', JSON.stringify(email), {
+          headers: { 'Content-Type': 'application/json' },
+          responseType: 'text'
+      });
+
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<string> {
+    return this.http.post('https://localhost:7060/reset-password', {
+      token,
+      newPassword
+    }, { responseType: 'text' });
   }
 
   private setToken(token: string, days: number = 1): void {
