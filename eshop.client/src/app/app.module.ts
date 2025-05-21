@@ -12,6 +12,7 @@ import { AdminComponent } from './admin/admin.component';
 import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-password.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
+import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { ResetPasswordComponent } from './login-page/reset-password/reset-passwo
     AdminComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    WelcomePageComponent,
   ],
   imports: [
     BrowserModule,

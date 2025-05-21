@@ -1,0 +1,15 @@
+
+
+/* If not using Tailwind Scrollbar plugin */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(252, 242, 89, 0.6);
+  border-radius: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}

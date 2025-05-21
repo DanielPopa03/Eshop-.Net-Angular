@@ -8,12 +8,15 @@ import { RoleGuard } from '../guards/role.guard';
 import { AdminComponent } from './admin/admin.component';
 import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
+import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 
 export function initializeAuth(authService: AuthService) {
   return () => authService.init();
 }
 
 const routes: Routes = [
+  { path: '', component: WelcomePageComponent },
+  { path: 'index', redirectTo: '', pathMatch: 'full' }, 
   { path: 'login', component: LoginPageComponent },
   { path: 'admin', component: AdminComponent, canActivate: [RoleGuard], data: { role: 'Admin' } }, 
   { path: 'product', component: ProductPageComponent },
