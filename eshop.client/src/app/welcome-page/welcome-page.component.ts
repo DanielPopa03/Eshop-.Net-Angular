@@ -29,12 +29,12 @@ export class WelcomePageComponent {
 
 
   products = [
-    { title: 'Gaming PC Case', image: '/assets/images/case.jpg', price: 129.99 },
-    { title: 'Tool Kit', image: '/assets/images/tools.jpg', price: 89.50 },
-    { title: 'Solar Camera', image: '/assets/images/camera.jpg', price: 59.00 },
-    { title: 'White Storage Bench', image: '/assets/images/bench.jpg', price: 99.99 },
-    { title: 'Air Purifier', image: '/assets/images/purifier.jpg', price: 149.00 },
-    { title: 'Paint Sprayer', image: '/assets/images/sprayer.jpg', price: 199.00 },
+    { title: 'Gaming PC Case', image: '/assets/images/case.jpg', price: 129.99, id: 1 },
+    { title: 'Tool Kit', image: '/assets/images/tools.jpg', price: 89.50, id: 1 },
+    { title: 'Solar Camera', image: '/assets/images/camera.jpg', price: 59.00, id: 1 },
+    { title: 'White Storage Bench', image: '/assets/images/bench.jpg', price: 99.99, id: 1 },
+    { title: 'Air Purifier', image: '/assets/images/purifier.jpg', price: 149.00, id: 1 },
+    { title: 'Paint Sprayer', image: '/assets/images/sprayer.jpg', price: 199.00, id: 1 },
   ];
 
   scrollRight() {
