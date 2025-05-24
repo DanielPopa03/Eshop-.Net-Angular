@@ -1,4 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +14,7 @@ import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-pas
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
 import { WelcomePageComponent } from './welcome-page/welcome-page.component';
+import { ModeratorComponent } from './moderator/moderator.component';
 
 
 @NgModule({
@@ -25,6 +27,7 @@ import { WelcomePageComponent } from './welcome-page/welcome-page.component';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     WelcomePageComponent,
+    ModeratorComponent,
   ],
   imports: [
     BrowserModule,

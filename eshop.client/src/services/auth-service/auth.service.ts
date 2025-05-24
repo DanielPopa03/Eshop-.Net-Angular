@@ -34,7 +34,9 @@ export class AuthService {
 
     try {
       const rawPayload: any = jwtDecode(token);
+      console.log(rawPayload)
       const decoded = UserInfo.fromJwtPayload(rawPayload);
+      console.log(decoded.role)
       const now = Math.floor(Date.now() / 1000);
       if (decoded.exp > now) {
         this.userSubject.next(decoded);
@@ -81,13 +83,21 @@ export class AuthService {
     }, { responseType: 'text' });
   }
 
+  roleOfUser(): string {
+    const user = this.userSubject.getValue();
+    if (user) {
+      return user.role;
+    }
+    return '';
+  }
+
   private setToken(token: string, days: number = 1): void {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
     this.cookieService.set(JWT_COOKIE_NAME, token, expires, '/');
   }
 
-  private getToken(): string | null {
+  public getToken(): string | null {
     return this.cookieService.get(JWT_COOKIE_NAME) || null;
   }
 

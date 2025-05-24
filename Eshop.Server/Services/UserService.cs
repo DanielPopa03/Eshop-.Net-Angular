@@ -11,10 +11,11 @@ namespace Eshop.Server.Services
         {
             this.context = context;
         }
-
-        public User? GetUserByEmail(String Email)
+        public User? GetUserByEmail(string email)
         {
-            return context.Users.SingleOrDefault(u => u.Email == Email);
+            return context.Users
+                .Include(u => u.Role)
+                .SingleOrDefault(u => u.Email == email);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
@@ -36,6 +37,21 @@ namespace Eshop.Server.Services
                 return null;
             }
         }
+
+        public async Task<(List<User> Users, int TotalCount)> GetUsersPagedAsync(int pageNumber, int pageSize)
+        {
+            var users = await context.Users
+                .Include(u => u.Role)
+                .OrderBy(u => u.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalCount = await context.Users.CountAsync();
+
+            return (users, totalCount);
+        }
+
 
     }
 }

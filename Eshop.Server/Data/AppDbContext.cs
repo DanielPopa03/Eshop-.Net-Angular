@@ -9,6 +9,7 @@ namespace Eshop.Server.Data
         {
         }
 
+        public DbSet<Supplier> Suppliers { get; set; } = null!;
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         public DbSet<Product> Products { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;

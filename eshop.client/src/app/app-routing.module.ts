@@ -9,6 +9,7 @@ import { AdminComponent } from './admin/admin.component';
 import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
 import { WelcomePageComponent } from './welcome-page/welcome-page.component';
+import { ModeratorComponent } from './moderator/moderator.component';
 
 export function initializeAuth(authService: AuthService) {
   return () => authService.init();
@@ -18,7 +19,8 @@ const routes: Routes = [
   { path: '', component: WelcomePageComponent },
   { path: 'index', redirectTo: '', pathMatch: 'full' }, 
   { path: 'login', component: LoginPageComponent },
-  { path: 'admin', component: AdminComponent, canActivate: [RoleGuard], data: { role: 'Admin' } }, 
+  { path: 'admin', component: AdminComponent, canActivate: [RoleGuard], data: { role: ['Admin'] } },
+  { path: 'moderator', component: ModeratorComponent, canActivate: [RoleGuard], data: { role: ['Admin', 'Moderator' ]} }, 
   { path: 'product', component: ProductPageComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },

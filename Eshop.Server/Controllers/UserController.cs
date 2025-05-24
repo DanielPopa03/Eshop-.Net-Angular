@@ -43,5 +43,14 @@ namespace Eshop.Server.Controllers
  
             return Ok(this.userService.AddUser(user));
         }
+
+        [HttpGet]
+        [Route("paged")]
+        public async Task<IActionResult> GetUsersPaged(int page, int size)
+        {
+            var (users, total) = await userService.GetUsersPagedAsync(page, size);
+            return Ok(new { users, total });
+        }
     }
+
 }

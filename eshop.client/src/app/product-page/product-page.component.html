@@ -1,1 +1,68 @@
-<p>product-page works!</p>
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+    <!-- Left: Product Images -->
+    <div class="w-full flex flex-col space-y-4">
+      <img [src]="selectedImage || product.image" alt="Main Product Image"
+           class="w-full h-auto object-contain rounded-lg border bg-white p-2" />
+
+      <!-- Thumbnails -->
+      <div class="flex space-x-2 overflow-x-auto">
+        <img *ngFor="let img of product.thumbnails"
+             [src]="img"
+             (click)="selectedImage = img"
+             class="w-20 h-20 object-contain border rounded cursor-pointer hover:ring-2 hover:ring-[#FCF259]" />
+      </div>
+    </div>
+
+    <!-- Right: Product Details -->
+    <div class="bg-[#4A102A] text-white p-6 rounded-lg shadow-md w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-4">{{ product.title }}</h2>
+      <p class="text-[#FCF259] text-xl font-semibold mb-4">{{ product.price | currency }}</p>
+
+      <button (click)="addToBasket(product)"
+              class="w-full bg-[#C5172E] hover:bg-[#85193C] text-white font-semibold py-3 px-4 rounded-lg transition mb-3">
+        Add to Basket
+      </button>
+
+      <button (click)="addToFavorites(product)"
+              class="w-full border border-[#FCF259] text-[#FCF259] font-semibold py-3 px-4 rounded-lg hover:bg-[#FCF259] hover:text-[#4A102A] transition">
+        Add to Favorites
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Description -->
+  <div class="mt-10">
+    <h3 class="text-xl font-bold text-[#4A102A] mb-2">Product Description</h3>
+    <p class="text-gray-700">{{ product.description }}</p>
+  </div>
+
+  <!-- Review Section -->
+  <div class="mt-10">
+    <h3 class="text-xl font-bold text-[#4A102A] mb-4">Reviews</h3>
+    <div *ngIf="isLoggedIn; else loginPrompt" class="space-y-4">
+      <label class="block">
+        <span class="text-gray-700">Your Rating:</span>
+        <div class="flex space-x-1 mt-1">
+          <ng-container *ngFor="let star of [1,2,3,4,5]">
+            <span (click)="rating = star"
+                  class="cursor-pointer text-2xl"
+                  [ngClass]="{'text-[#FCF259]': star <= rating, 'text-gray-300': star > rating}">&#9733;</span>
+          </ng-container>
+        </div>
+      </label>
+      <textarea [(ngModel)]="reviewText" rows="4" placeholder="Write your review..."
+                class="w-full border rounded-lg p-2"></textarea>
+      <button (click)="submitReview()"
+              class="bg-[#4A102A] text-white px-4 py-2 rounded hover:bg-[#85193C]">
+        Submit Review
+      </button>
+    </div>
+    <ng-template #loginPrompt>
+      <button (click)="redirectToLogin()"
+              class="bg-[#FCF259] text-[#4A102A] px-4 py-2 rounded hover:bg-[#e6d945]">
+        Log in to add a review
+      </button>
+    </ng-template>
+  </div>
+</div>

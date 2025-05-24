@@ -31,6 +31,7 @@ namespace Eshop.Server.Services.Auth
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role?.Name ?? ""),
                     new Claim("role", user.Role?.Name ?? string.Empty),
                     new Claim("first_name", user.FirstName),
                     new Claim("last_name", user.LastName),

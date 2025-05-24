@@ -23,7 +23,7 @@ export class RoleGuard implements CanActivate {
     return this.authService.user$.pipe(
       take(1),
       map(user => {
-        if (user && user.role === requiredRole) {
+        if (user && requiredRole.includes(user.role)) {
           return true;
         } else {
           this.router.navigate(['/']);
