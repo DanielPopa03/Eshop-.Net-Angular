@@ -51,6 +51,17 @@ namespace Eshop.Server.Controllers
             var (users, total) = await userService.GetUsersPagedAsync(page, size);
             return Ok(new { users, total });
         }
+
+        [HttpGet]
+        [Route("getUserByEmail")]
+        public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+        {
+            User u = userService.GetUserByEmail(email);
+            if (u == null)
+                return NotFound();
+
+            return Ok(u);
+        }
     }
 
 }

@@ -10,7 +10,7 @@ describe('AdminComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [AdminComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AdminComponent);
     component = fixture.componentInstance;
