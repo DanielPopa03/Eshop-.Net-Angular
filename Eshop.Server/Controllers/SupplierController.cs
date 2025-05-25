@@ -20,7 +20,7 @@ namespace Eshop.Server.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("getAllSuppliers")]
         public async Task<IActionResult> GetAllSuppliers()
