@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { UserService } from '../../services/user/user.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-admin',
@@ -14,7 +15,7 @@ export class AdminComponent implements OnInit {
   page = 1;
   size = 5;
   totalPages = 0;
-  constructor(private authService: AuthService, private supplierService: SupplierService, private userService: UserService) { }
+  constructor(private authService: AuthService, private supplierService: SupplierService, private userService: UserService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.fetchCompanies();
@@ -58,15 +59,26 @@ export class AdminComponent implements OnInit {
   }
 
   removeModerator(moderatorUserId: number): void {
-    if (confirm('Are you sure you want to delete this moderator?')) {
-      this.supplierService.deleteModeratorObservable(this.selectedCompanyId, moderatorUserId).subscribe(
-        {
-          next: (res: any) => { console.log(res); this.fetchModerators(); },
-          error: (err: any) => { console.log(err); }
+    const snackBarRef = this.snackBar.open('Are you sure you want to delete this moderator?', 'Confirm', {
+      duration: 5000, // optional auto-dismiss
+      panelClass: ['warning-snackbar'] // optional custom style
+    });
+
+    snackBarRef.onAction().subscribe(() => {
+      this.supplierService.deleteModeratorObservable(this.selectedCompanyId, moderatorUserId).subscribe({
+        next: (res: any) => {
+          console.log(res);
+          this.fetchModerators();
+          this.snackBar.open('Moderator deleted successfully.', 'Close', { duration: 3000 });
+        },
+        error: (err: any) => {
+          console.log(err);
+          this.snackBar.open('Failed to delete moderator.', 'Close', { duration: 3000 });
         }
-      );
-    }
+      });
+    });
   }
+
 
   selectCompany(): void {
     console.log('Open company selector or dropdown');
