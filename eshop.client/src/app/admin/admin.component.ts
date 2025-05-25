@@ -14,7 +14,7 @@ export class AdminComponent implements OnInit {
   page = 1;
   size = 5;
   totalPages = 1;
-  constructor(private authService: AuthService, private supplierService: SupplierService) { }
+  constructor(private authService: AuthService, private supplierService: SupplierService, private userService: UserService) { }
 
   ngOnInit(): void {
     this.fetchCompanies();
@@ -22,23 +22,19 @@ export class AdminComponent implements OnInit {
   }
 
   fetchCompanies(): void {
-    if (this.authService.roleOfUser() === 'Moderator') {
-      this.supplierService.getUserSuppliers().subscribe(companies => {
-        console.log(companies);
-      });
-    }
     if (this.authService.roleOfUser() === 'Admin') {
-      this.supplierService.getAllSuppliers().subscribe(companies => {
-        console.log(companies);
+      this.supplierService.getAllSuppliers().subscribe(retrieved_companies => {
+        console.log("Retrieved companies: " + retrieved_companies.toString());
+        this.companies = retrieved_companies;
       });
     }
   }
 
   fetchModerators(): void {
-    //this.supplierService.getPagedModerators(this.page, this.size).subscribe(res => {
-    //  this.moderators = res.items;
-    //  this.totalPages = Math.ceil(res.total / this.size);
-    //});
+    this.supplierService.getPagedModeratorsOfSupplier(this.selectedCompanyId, this.page, this.size).subscribe(res => {
+      this.moderators = res.items;
+      this.totalPages = Math.ceil(res.total / this.size);
+    });
   }
 
   prevPage(): void {
@@ -102,15 +98,32 @@ export class AdminComponent implements OnInit {
   }
 
   checkNewModerator(): void {
-    console.log('Checking e-mail: ' + this.newModerator.email)
-    this.newModerator.id = 0; /// DEBUG
+    console.log('Checking e-mail: ' + this.newModerator.email);
+
+    this.userService.getUserByEmail(this.newModerator.email).subscribe({
+      next: user => {
+        console.log('User:', user);
+        this.newModerator = user;
+      },
+      error: err => {
+        if (err.status === 404) {
+          console.log('User not found (404)');
+          this.newModerator = { id: -1, email: '', name: '' };
+        } else {
+          console.error('HTTP Error:', err);
+        }
+      }
+    });
   }
+
 
   submitNewModerator(): void {
     if (this.newModerator.id < 0)
       return;
     console.log('Submitting', this.newModerator);
-    // Upload logic here...
+
+    this.supplierService.addModerator(this.selectedCompanyId, this.newModerator.id)
+
     this.cancelAddModerator();
   }
 }
