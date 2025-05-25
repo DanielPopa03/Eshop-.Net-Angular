@@ -13,9 +13,10 @@ namespace Eshop.Server.Services
         }
         public User? GetUserByEmail(string email)
         {
-            return context.Users
+            User? u = context.Users
                 .Include(u => u.Role)
                 .SingleOrDefault(u => u.Email == email);
+            return u;
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
