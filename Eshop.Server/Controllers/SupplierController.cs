@@ -1,6 +1,9 @@
-﻿using Eshop.Server.Services;
+﻿using Eshop.Server.Models;
+using Eshop.Server.Services;
+using Eshop.Server.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Eshop.Server.Controllers
@@ -16,9 +19,10 @@ namespace Eshop.Server.Controllers
             this.supplierService = supplierService;
         }
 
+
+        [Authorize]
         [HttpGet]
         [Route("getAllSuppliers")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllSuppliers()
         {
             try
@@ -28,10 +32,9 @@ namespace Eshop.Server.Controllers
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Failed to get suppliers: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to get suppliers: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
-
         }
 
         [HttpGet]

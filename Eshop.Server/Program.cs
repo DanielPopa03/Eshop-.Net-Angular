@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Eshop.Server.Services.Auth;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,49 +23,62 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<SupplierService>();
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
 
 //Authentification through JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+
         options.Events = new JwtBearerEvents
         {
-            OnAuthenticationFailed = context =>
+            OnMessageReceived = context =>
             {
-                Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                System.Diagnostics.Debug.WriteLine(authHeader);
+
                 return Task.CompletedTask;
             },
             OnTokenValidated = context =>
             {
-                Console.WriteLine("Token validated successfully");
-                var claims = context.Principal?.Claims;
-                if (claims != null)
+                System.Diagnostics.Debug.WriteLine("JWT Token validated successfully");
+                if (context.Principal != null)
                 {
-                    foreach (var claim in claims)
-                    {
-                        Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
-                    }
+                    context.HttpContext.User = context.Principal;
                 }
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                System.Diagnostics.Debug.WriteLine("JWT Authentication failed: " + context.Exception.Message);
                 return Task.CompletedTask;
             },
             OnChallenge = context =>
             {
-                Console.WriteLine($"JWT Challenge: {context.Error} - {context.ErrorDescription}");
+                System.Diagnostics.Debug.WriteLine("Challenge triggered: " + context.Error + " - " + context.ErrorDescription);
+                System.Diagnostics.Debug.WriteLine("Authenticate failure: " + context.AuthenticateFailure?.Message);
                 return Task.CompletedTask;
             }
         };
+
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
             RoleClaimType = ClaimTypes.Role,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],  
-            ValidAudience = builder.Configuration["Jwt:Audience"],  
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])), 
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])
+            ),
             ClockSkew = TimeSpan.Zero
         };
+
     });
 builder.Services.AddAuthorization();
 
@@ -107,6 +121,17 @@ app.UseAuthentication();
 app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthorization();
+
+app.UseExceptionHandler(errApp =>
+{
+    errApp.Run(async context =>
+    {
+        var ex = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
+        System.Diagnostics.Debug.WriteLine(" Unhandled exception: " + ex?.ToString());
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Internal server error");
+    });
+});
 
 app.MapControllers();
 
