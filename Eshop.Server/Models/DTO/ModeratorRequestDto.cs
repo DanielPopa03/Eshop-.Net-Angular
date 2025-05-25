@@ -1,6 +1,6 @@
 ﻿namespace Eshop.Server.Models.DTO
 {
-    public class AddModeratorRequest
+    public class ModeratorRequestDto
     {
         public int SupplierId { get; set; }
         public int ModeratorUserId { get; set; }

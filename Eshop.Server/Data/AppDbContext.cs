@@ -18,9 +18,16 @@ namespace Eshop.Server.Data
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderedProduct> OrderedProducts { get; set; } = null!;
         public DbSet<Address> Addresses { get; set; } = null!;
-        //
+        public DbSet<Role> Roles { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Role>().ToTable("Role");
+
+            modelBuilder.Entity<User>()
+                        .HasMany(u => u.Supplier)
+                        .WithMany(s => s.Users)
+                        .UsingEntity(j => j.ToTable("SupplierUser"));
+
             modelBuilder.Entity<User>()
            .HasIndex(u => u.Email)  
            .IsUnique();

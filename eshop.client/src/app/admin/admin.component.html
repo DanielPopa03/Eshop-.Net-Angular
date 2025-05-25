@@ -45,7 +45,7 @@
       ‹ Prev
     </button>
 
-    <span class="text-[#4A102A]">Page {{ page }} / {{ totalPages }}</span>
+    <span class="text-[#4A102A]">Page {{ moderators.length != 0 ? page : 0 }} / {{ totalPages }}</span>
 
     <button (click)="nextPage()" [disabled]="page === totalPages"
             class="px-4 py-1 rounded bg-[#4A102A] text-[#FCF259] hover:bg-[#85193C] disabled:opacity-50">

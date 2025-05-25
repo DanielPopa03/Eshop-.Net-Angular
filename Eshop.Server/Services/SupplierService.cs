@@ -1,6 +1,7 @@
 ﻿using Eshop.Server.Data;
 using Eshop.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eshop.Server.Services
@@ -34,24 +35,75 @@ namespace Eshop.Server.Services
         public async Task<List<User>> GetModeratorsOfSupplier(int supplierId)
         {
             var moderators = await context.Users
-                .Where(u => u.Role.Name == "Moderator" &&
+                .Include(u => u.Role)
+                .Include(u => u.Supplier)
+                .Where(u => (u.Role.Name == "Moderator" || u.Role.Name == "Admin") &&
                             u.Supplier.Any(sup => sup.Id == supplierId))
                 .ToListAsync();
+
             return moderators;
         }
 
-        public async Task<Boolean> addModerator(int supplierId, int moderatorUserId)
+        public async Task<bool> AddModerator(int supplierId, int moderatorUserId)
         {
-            Supplier? s = await context.Suppliers.FindAsync(supplierId);
-            User? mod = await context.Users.FindAsync(moderatorUserId);
+            var s = await context.Suppliers.FindAsync(supplierId);
+            var mod = await context.Users
+                .Include(u => u.Role) // Make sure Role is loaded
+                .Include(u => u.Supplier) // If needed
+                .FirstOrDefaultAsync(u => u.Id == moderatorUserId);
 
             if (mod != null && s != null)
             {
-                mod.Supplier.Add(s);
+                if (!mod.Supplier.Contains(s))
+                {
+                    mod.Supplier.Add(s);
+                    Console.WriteLine("Added supplier!" + s.Name);
+                }
+
+                if (mod.Role == null || (mod.Role.Name != "Moderator" && mod.Role.Name != "Admin"))
+                {
+                    var moderatorRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == "Moderator");
+                    if (moderatorRole != null)
+                    {
+                        mod.Role = moderatorRole;
+                    }
+                    else
+                    {
+                        // Optionally throw or log here: missing expected role
+                        return false;
+                    }
+                }
+
                 await context.SaveChangesAsync();
                 return true;
             }
+
             return false;
         }
+
+        public async Task<bool> RemoveModerator(int supplierId, int moderatorUserId)
+        {
+            var s = await context.Suppliers.FindAsync(supplierId);
+            var mod = await context.Users
+                .Include(u => u.Role) // Make sure Role is loaded
+                .Include(u => u.Supplier) // If needed
+                .FirstOrDefaultAsync(u => u.Id == moderatorUserId);
+
+            if (s == null || mod == null)
+                return false;
+
+            if (mod.Supplier.Contains(s))
+                mod.Supplier.Remove(s);
+            else
+                return false;
+
+            if (mod.Role.Name == "Moderator" && mod.Supplier.Count == 0)
+                mod.Role = null;
+
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+
     }
 }
