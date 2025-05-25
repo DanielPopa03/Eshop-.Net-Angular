@@ -11,6 +11,7 @@ namespace Eshop.Server.Data
 
         public DbSet<Supplier> Suppliers { get; set; } = null!;
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Product> Products { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
@@ -24,6 +25,9 @@ namespace Eshop.Server.Data
            .HasIndex(u => u.Email)  
            .IsUnique();
 
+            modelBuilder.Entity<ProductImage>()
+                .HasKey(pi => new { pi.ProductId, pi.Number });
+
             modelBuilder.Entity<OrderedProduct>()
                 .HasKey(op => new { op.OrderId, op.ProductId });
 
@@ -34,6 +38,11 @@ namespace Eshop.Server.Data
             .HasOne(a => a.User)
             .WithMany(u => u.Addresses)
             .HasForeignKey(a => a.UserId);
+
+            modelBuilder.Entity<ProductImage>()
+                .HasOne(pi => pi.Product)
+                .WithMany(p => p.Images)
+                .HasForeignKey(pi => pi.ProductId);
 
             modelBuilder.Entity<OrderedProduct>()
                 .HasOne(op => op.Order)

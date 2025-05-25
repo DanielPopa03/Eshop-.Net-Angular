@@ -14,12 +14,7 @@ export class SupplierService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getAllSuppliers(): Observable<Supplier[]> {
-    return this.http.get<Supplier[]>('https://localhost:7060/Supplier/getAllSuppliers', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + this.authService.getToken()
-      }
-    });
+    return this.http.get<Supplier[]>('https://localhost:7060/Supplier/getAllSuppliers');
   }
 
   getUserSuppliers(): Observable<Supplier[]> {

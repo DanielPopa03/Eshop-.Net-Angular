@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
 import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 import { ModeratorComponent } from './moderator/moderator.component';
+import { AuthInterceptor } from '../interceptor/authorization.interceptor';
 
 
 @NgModule({
@@ -35,7 +36,13 @@ import { ModeratorComponent } from './moderator/moderator.component';
     FormsModule,
     MatSnackBarModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

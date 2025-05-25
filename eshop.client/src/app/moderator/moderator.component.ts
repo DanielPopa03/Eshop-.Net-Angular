@@ -4,6 +4,7 @@ import { Category } from '../../models/category/category';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { CategoryService } from '../../services/category/category.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
+import { Supplier } from '../../models/supplier/supplier';
 
 @Component({
   selector: 'app-moderator',
@@ -13,26 +14,46 @@ import { SupplierService } from '../../services/supplier/supplier.service';
 })
 export class ModeratorComponent implements OnInit {
   products: any[] = [];
+  suppliers: Supplier[] = [];
+  showAddModal = false;
+  previewImage: string | null = null;
+  selectedCompanyId: number = 0;
+  categories: Category[] = [];
+
+  newProduct: {
+    name: string;
+    description: string;
+    categoryId: number | null;
+    imageFile: File | null;
+  } = {
+      name: '',
+      description: '',
+      categoryId: null,
+      imageFile: null
+   };
+
   page = 1;
   size = 5;
   totalPages = 1;
-  constructor(private productService: ProductService, private authService: AuthService,
+  constructor(private authService: AuthService,
     private supplierService: SupplierService, private categoryService: CategoryService) { }
 
   ngOnInit(): void {
-    this.fetchCompanies();
+    this.fetchSuppliers();
     this.fetchProducts();
   }
 
-  fetchCompanies(): void {
+  fetchSuppliers(): void {
     if (this.authService.roleOfUser() === 'Moderator') {
       this.supplierService.getUserSuppliers().subscribe(companies => {
-        console.log(companies);
+        this.suppliers = companies
+        this.selectedCompanyId = this.suppliers[0].id;
       });
     }
     if (this.authService.roleOfUser() === 'Admin') {
       this.supplierService.getAllSuppliers().subscribe(companies => {
-        console.log(companies);
+        this.suppliers = companies
+        this.selectedCompanyId = this.suppliers[0].id;
       });
     }
   }
@@ -42,6 +63,13 @@ export class ModeratorComponent implements OnInit {
     //  this.products = res.items;
     //  this.totalPages = Math.ceil(res.total / this.size);
     //});
+  }
+
+  fetchCategories(): void {
+    this.categoryService.getAllCategories().subscribe(categories => {
+        this.categories = categories;
+        this.newProduct.categoryId = this.categories[0].categoryId;
+    })
   }
 
   prevPage(): void {
@@ -60,7 +88,7 @@ export class ModeratorComponent implements OnInit {
 
   editProduct(product: any): void {
     console.log('Editing:', product);
-    // route to edit page or open modal
+    this.fetchCategories();
   }
 
   removeProduct(id: number): void {
@@ -74,40 +102,15 @@ export class ModeratorComponent implements OnInit {
     // Open modal, dropdown, or route to a page
   }
 
-
-  companies = [
-    { id: 1, name: 'Company A' },
-    { id: 2, name: 'Company B' },
-    { id: 3, name: 'Company C' }
-  ];
-
-  selectedCompanyId = this.companies[0].id;
-
   onCompanyChange(): void {
     console.log('Selected Company ID:', this.selectedCompanyId);
     this.page = 1;
     this.fetchProducts(); // optionally refetch data based on selected company
   }
 
-  showAddModal = false;
-  previewImage: string | null = null;
-
-  newProduct = {
-    name: '',
-    description: '',
-    categoryId: null,
-    imageFile: null
-  };
-
-  categories = [
-    { id: 1, name: 'Clothing' },
-    { id: 2, name: 'Electronics' },
-    { id: 3, name: 'Accessories' }
-  ];
-
   addProduct(): void {
     this.showAddModal = true;
-    console.log("hey")
+    this.fetchCategories();
   }
 
   cancelAddProduct(): void {
