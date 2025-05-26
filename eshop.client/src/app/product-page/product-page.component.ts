@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { ProductService } from '../../services/product/product.service';
 
 @Component({
   selector: 'app-product-page',
@@ -19,11 +20,13 @@ export class ProductPageComponent {
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
+    private productService: ProductService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    const productId = this.route.snapshot.paramMap.get('id');
+    const productId = this.route.snapshot.queryParamMap.get('id');
+    this.product.id = productId;
     this.fetchProduct(productId);
 
     this.authService.isLoggedIn$.subscribe(status => {
@@ -57,6 +60,12 @@ export class ProductPageComponent {
       rating: this.rating,
       text: this.reviewText
     });
+
+    this.productService.submitReview(this.product.id, this.rating, this.reviewText).subscribe({
+      next: (res: any) => { console.log(res); },
+      error: (err: any) => { console.log(err); }
+    });
+
     // handle submission logic here
     this.reviewText = '';
     this.rating = 0;
