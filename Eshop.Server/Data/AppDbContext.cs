@@ -19,6 +19,8 @@ namespace Eshop.Server.Data
         public DbSet<OrderedProduct> OrderedProducts { get; set; } = null!;
         public DbSet<Address> Addresses { get; set; } = null!;
         public DbSet<Role> Roles { get; set; } = null!;
+
+        public DbSet<Review> Reviews { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().ToTable("Role");

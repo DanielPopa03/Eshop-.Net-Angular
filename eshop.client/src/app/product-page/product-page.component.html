@@ -53,8 +53,14 @@
       </label>
       <textarea [(ngModel)]="reviewText" rows="4" placeholder="Write your review..."
                 class="w-full border rounded-lg p-2"></textarea>
-      <button (click)="submitReview()"
-              class="bg-[#4A102A] text-white px-4 py-2 rounded hover:bg-[#85193C]">
+      <button (click)="submitReview()" [disabled]="rating <= 0"
+              class="px-4 py-2 rounded
+                     bg-[#4A102A] text-white
+                     hover:bg-[#85193C]
+                     disabled:bg-gray-400
+                     disabled:text-gray-700
+                     disabled:cursor-not-allowed
+                     disabled:hover:bg-gray-400">
         Submit Review
       </button>
     </div>
