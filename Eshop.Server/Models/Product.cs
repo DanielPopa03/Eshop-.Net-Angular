@@ -14,6 +14,8 @@
 
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
         public ICollection<OrderedProduct> OrderedProducts { get; set; } = new List<OrderedProduct>();
+
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 
 }

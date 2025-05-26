@@ -56,11 +56,12 @@ namespace Eshop.Server.Controllers
         [Route("getUserByEmail")]
         public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
         {
-            User u = userService.GetUserByEmail(email);
+            User? u = userService.GetUserByEmail(email);
             if (u == null)
                 return NotFound();
-
-            return Ok(u);
+            UserInfoDto udto = new UserInfoDto(u);
+            Console.WriteLine(udto.Name);
+            return Ok(udto);
         }
     }
 

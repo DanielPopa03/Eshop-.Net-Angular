@@ -79,8 +79,9 @@ export class ModeratorComponent implements OnInit {
 
   fetchCategories(): void {
     this.categoryService.getAllCategories().subscribe(categories => {
-        this.categories = categories;
-        this.newProduct.categoryId = this.categories[0].categoryId;
+      this.categories = categories;
+      if (!this.isEditMode)
+      this.newProduct.categoryId = this.categories[0].categoryId;
     })
   }
 
@@ -102,7 +103,6 @@ export class ModeratorComponent implements OnInit {
     this.previewImages.splice(index, 1);
     this.newProduct.imageFiles.splice(index, 1);
   }
-
 
   editProduct(product: any): void {
     this.newProduct = {
@@ -191,10 +191,6 @@ export class ModeratorComponent implements OnInit {
       stock: this.newProduct.stock!
     };
 
-
-    console.log("bai", this.previewImagesAtTheStart
-      .filter(img => !this.previewImages.includes(img))
-      .map(img => img.replace('https://localhost:7060', '')))
     const request$ = this.isEditMode
       ? this.productService.updateProduct(payload, this.newProduct.imageFiles,
         this.previewImagesAtTheStart
@@ -213,6 +209,4 @@ export class ModeratorComponent implements OnInit {
       }
     });
   }
-
-
 }

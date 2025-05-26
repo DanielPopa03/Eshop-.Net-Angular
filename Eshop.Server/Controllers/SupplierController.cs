@@ -54,26 +54,58 @@ namespace Eshop.Server.Controllers
         [Route("getPagedModeratorsOfSupplier")]
         public async Task<IActionResult> GetPagedModeratorsOfSupplier([FromQuery] int supplierId, [FromQuery] int startIdx, [FromQuery] int endIdx)
         {
-            List<User> moderators = await supplierService.GetModeratorsOfSupplier(supplierId);
+            var moderators = await supplierService.GetModeratorsOfSupplier(supplierId);
+            if (moderators == null || moderators.Count == 0)
+            {
+                return Ok(new
+                {
+                    items = new List<User>(),
+                    total = 0
+                });
+            }
+
             if (startIdx >= moderators.Count || endIdx < startIdx)
                 return BadRequest();
 
-            int totalModeratorsCount = moderators.Count;
-            moderators = moderators.Slice(startIdx, endIdx);
-            var response = new Dictionary<string, object>()
-            {
-                {"items", moderators},
-                {"total", totalModeratorsCount}
-            };
+            var totalModeratorsCount = moderators.Count;
+            if (moderators.Count < endIdx)
+                endIdx = moderators.Count;
 
-            return Ok(response);
+            if (endIdx < startIdx)
+                return NotFound();
+
+            var paged = moderators.Slice(startIdx, endIdx);
+            List<UserInfoDto> pagedUserInfo = new List<UserInfoDto>();
+            foreach(var mod in paged)
+                pagedUserInfo.Add(new UserInfoDto(mod));
+
+            Console.WriteLine(pagedUserInfo);
+            
+            return Ok(new
+            {
+                items = pagedUserInfo,
+                total = totalModeratorsCount
+            });
         }
+
 
         [HttpPost]
         [Route("addModerator")]
-        public async Task<IActionResult> addModerator([FromBody] AddModeratorRequest AddModeratorRequest)
+        public async Task<IActionResult> addModerator([FromBody] ModeratorRequestDto AddModeratorRequest)
         {
-            Boolean success = await supplierService.addModerator(AddModeratorRequest.SupplierId, AddModeratorRequest.ModeratorUserId);
+            Console.WriteLine("New moderator !!!");
+            Boolean success = await supplierService.AddModerator(AddModeratorRequest.SupplierId, AddModeratorRequest.ModeratorUserId);
+            if (!success)
+                return NotFound();
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("removeModerator")]
+        public async Task<IActionResult> removeModerator([FromBody] ModeratorRequestDto RemoveModeratorRequest)
+        {
+            Console.WriteLine("Removing Moderator " + RemoveModeratorRequest.SupplierId + " " + RemoveModeratorRequest.ModeratorUserId);
+            Boolean success = await supplierService.RemoveModerator(RemoveModeratorRequest.SupplierId, RemoveModeratorRequest.ModeratorUserId);
             if (!success)
                 return NotFound();
             return Ok();

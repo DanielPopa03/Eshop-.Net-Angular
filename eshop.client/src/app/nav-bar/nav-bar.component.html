@@ -7,6 +7,25 @@
         <!-- Logo -->
         <a routerLink="/" class="text-xl font-bold text-[#FCF259] hover:opacity-90">E-Shop</a>
 
+        <!-- Moderator/Admin Links -->
+        <ng-container *ngIf="authService.roleOfUser() === 'Admin' || authService.roleOfUser() === 'Moderator'">
+          <!-- Visible to Admin & Moderator -->
+          <a routerLink="/admin"
+             class="flex items-center text-[#FCF259] hover:opacity-90 space-x-1">
+            <img src="admin.svg" class="w-5 h-5" alt="Admin" />
+            <span class="hidden sm:inline">Admin Panel</span>
+          </a>
+
+          <!-- Visible to Admin only -->
+          <a *ngIf="authService.roleOfUser() === 'Admin'"
+             routerLink="/moderator"
+             class="flex items-center text-[#FCF259] hover:opacity-90 space-x-1">
+            <img src="moderator.svg" class="w-5 h-5" alt="Moderator" />
+            <span class="hidden sm:inline">Moderation</span>
+          </a>
+        </ng-container>
+
+
         <!-- Products Dropdown -->
         <div class="relative group">
           <button class="text-[#FCF259] font-medium px-2 py-1 rounded-md group-hover:bg-[#FCF259] group-hover:text-[#4A102A] transition duration-200">
@@ -18,6 +37,8 @@
             <a routerLink="/deals" class="block px-4 py-2 hover:bg-[#85193C]">Deals</a>
           </div>
         </div>
+
+
       </div>
 
       <!-- Bottom Row: Search, User, Basket -->

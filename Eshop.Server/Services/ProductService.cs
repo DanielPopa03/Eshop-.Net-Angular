@@ -123,6 +123,17 @@ namespace Eshop.Server.Services
             await context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> AddReview(Review Review)
+        {
+            var ProductExists = await context.Products.AnyAsync(p => p.Id == Review.ProductId);
+            if (ProductExists)
+            {
+                await context.Reviews.AddAsync(Review);
+                await context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }
-

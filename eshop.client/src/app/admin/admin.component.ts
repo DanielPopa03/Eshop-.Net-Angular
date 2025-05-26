@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { UserService } from '../../services/user/user.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-admin',
@@ -13,8 +14,8 @@ export class AdminComponent implements OnInit {
   moderators: any[] = [];
   page = 1;
   size = 5;
-  totalPages = 1;
-  constructor(private authService: AuthService, private supplierService: SupplierService, private userService: UserService) { }
+  totalPages = 0;
+  constructor(private authService: AuthService, private supplierService: SupplierService, private userService: UserService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.fetchCompanies();
@@ -31,9 +32,15 @@ export class AdminComponent implements OnInit {
   }
 
   fetchModerators(): void {
-    this.supplierService.getPagedModeratorsOfSupplier(this.selectedCompanyId, this.page, this.size).subscribe(res => {
-      this.moderators = res.items;
-      this.totalPages = Math.ceil(res.total / this.size);
+    this.supplierService.getPagedModeratorsOfSupplier(this.selectedCompanyId, this.page, this.size).subscribe({
+      next: res => {
+        this.moderators = res.items;
+        this.totalPages = Math.ceil(res.total / this.size);
+      },
+      error: err => {
+        console.error('Failed to fetch moderators:', err);
+        // optionally show user-friendly error message
+      }
     });
   }
 
@@ -51,11 +58,27 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  removeModerator(id: number): void {
-    if (confirm('Are you sure you want to delete this moderator?')) {
-      //this.supplierService.deleteModerator(id).subscribe(() => this.fetchProducts());
-    }
+  removeModerator(moderatorUserId: number): void {
+    const snackBarRef = this.snackBar.open('Are you sure you want to delete this moderator?', 'Confirm', {
+      duration: 5000, // optional auto-dismiss
+      panelClass: ['warning-snackbar'] // optional custom style
+    });
+
+    snackBarRef.onAction().subscribe(() => {
+      this.supplierService.deleteModeratorObservable(this.selectedCompanyId, moderatorUserId).subscribe({
+        next: (res: any) => {
+          console.log(res);
+          this.fetchModerators();
+          this.snackBar.open('Moderator deleted successfully.', 'Close', { duration: 3000 });
+        },
+        error: (err: any) => {
+          console.log(err);
+          this.snackBar.open('Failed to delete moderator.', 'Close', { duration: 3000 });
+        }
+      });
+    });
   }
+
 
   selectCompany(): void {
     console.log('Open company selector or dropdown');
@@ -122,8 +145,18 @@ export class AdminComponent implements OnInit {
       return;
     console.log('Submitting', this.newModerator);
 
-    this.supplierService.addModerator(this.selectedCompanyId, this.newModerator.id)
+    this.supplierService.addModeratorObservable(this.selectedCompanyId, this.newModerator.id).subscribe({
+      next: (response) => {
+        console.log("Success: ", response);
+        this.fetchModerators();
+      },
+      error: (error) => {
+        console.log("Error: ", error);
+      }
+    });;
 
     this.cancelAddModerator();
+
+    this.fetchModerators();
   }
 }

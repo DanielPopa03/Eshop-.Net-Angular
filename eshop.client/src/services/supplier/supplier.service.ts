@@ -19,31 +19,41 @@ export class SupplierService {
 
   getUserSuppliers(): Observable<Supplier[]> {
     return this.http.get<Supplier[]>('https://localhost:7060/Supplier/getUserSuppliers', {
-        withCredentials: true
-      });
-  }
-
-  getPagedModeratorsOfSupplier(supplierId: number, page: number, pageSize: number) : Observable<any> {
-    const start = (page - 1) * pageSize;
-    const end = page * pageSize;
-    const params = new HttpParams()
-      .set('supplierId', supplierId.toString())
-      .set('startIdx', start.toString())
-      .set('endIdx', end.toString());
-      
-    return this.http.get<any>('https://localhost:7060/Supplier/getPagedModeratorsOfSupplier', {
-      params,
       withCredentials: true
     });
   }
 
-  addModerator(supplierId: number, moderatorUserId: any) {
+  getPagedModeratorsOfSupplier(supplierId: number, page: number, pageSize: number): Observable<any> {
+    const start = (page - 1) * pageSize;
+    const end = page * pageSize;
+    console.log(start, end);
+    const params = new HttpParams()
+      .set('supplierId', supplierId.toString())
+      .set('startIdx', start.toString())
+      .set('endIdx', end.toString());
+
+    return this.http.get<any>('https://localhost:7060/Supplier/getPagedModeratorsOfSupplier', {
+      params
+    });
+  }
+
+  addModeratorObservable(supplierId: number, moderatorUserId: number) {
+    console.log('HTTP REQ');
     return this.http.post<any>('https://localhost:7060/Supplier/addModerator',
       {
         supplierId: supplierId,
         moderatorUserId: moderatorUserId,
-      },
-      { withCredentials: true }
-    )
+      }
+    );
+  }
+
+  deleteModeratorObservable(supplierId: number, moderatorUserId: number) : Observable<any> {
+    console.log("REMOVING MODERATOR WITH {SUPPLIER, USERID}: " + supplierId + " " + moderatorUserId);
+
+    return this.http.post<any>('https://localhost:7060/Supplier/removeModerator',
+      {
+        supplierId: supplierId,
+        moderatorUserId: moderatorUserId,
+      });
   }
 }
