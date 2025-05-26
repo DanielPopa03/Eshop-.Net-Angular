@@ -65,19 +65,33 @@
     <!-- Left: Drag & Drop Upload -->
     <div class="border-2 border-dashed border-gray-400 rounded-lg p-4 flex flex-col justify-center items-center bg-gray-50 cursor-pointer"
          (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="fileInput.click()">
-      <p class="text-gray-500 mb-2">Drag & drop image here</p>
+      <p class="text-gray-500 mb-2">Drag & drop images here</p>
       <p class="text-sm text-gray-400">or click to browse</p>
-      <input type="file" #fileInput (change)="onFileSelect($event)" hidden />
-      <img *ngIf="previewImage" [src]="previewImage" class="mt-4 max-h-40 rounded" />
+      <input type="file" #fileInput multiple (change)="onFileSelect($event)" hidden />
+
+      <div class="flex flex-wrap justify-center gap-2 mt-4" *ngIf="previewImages.length > 0">
+        <div *ngFor="let img of previewImages; let i = index" class="relative">
+          <img [src]="img" class="max-h-32 rounded shadow" />
+          <button (click)="removeImage(i); $event.stopPropagation();"
+                  class="absolute top-0 right-0 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+            &times;
+          </button>
+        </div>
+      </div>
     </div>
+
 
     <!-- Right: Form -->
     <div class="space-y-4">
       <input type="text" [(ngModel)]="newProduct.name" placeholder="Product Name"
              class="w-full border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+      <input type="text" [(ngModel)]="newProduct.price" placeholder="Price"
+             class="w-full border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+      <input type="text" [(ngModel)]="newProduct.stock" placeholder="Stock"
+             class="w-full border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
       <textarea [(ngModel)]="newProduct.description" placeholder="Description"
                 class="w-full border rounded px-4 py-2 h-24 focus:ring-[#FCF259] focus:outline-none"></textarea>
-      <select [(ngModel)]="newProduct.categoryId" 
+      <select [(ngModel)]="newProduct.categoryId"
               class="w-full border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none">
         <option *ngFor="let cat of categories" [value]="cat.categoryId">{{ cat.name }}</option>
       </select>

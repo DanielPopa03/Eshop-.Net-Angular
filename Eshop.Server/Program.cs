@@ -7,8 +7,12 @@ using System.Text;
 using Eshop.Server.Services.Auth;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Diagnostics;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure web root path manually
+builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
 // Add services to the container.
 var connectionString =
@@ -26,6 +30,13 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SupplierService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ProductImageService>();
+
+builder.Services.AddControllers().AddJsonOptions(opts =>
+{
+    opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
 
 //Authentification through JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

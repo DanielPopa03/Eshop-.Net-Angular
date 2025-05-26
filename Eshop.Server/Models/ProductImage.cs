@@ -1,4 +1,6 @@
-﻿namespace Eshop.Server.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Eshop.Server.Models
 {
     public class ProductImage
     {

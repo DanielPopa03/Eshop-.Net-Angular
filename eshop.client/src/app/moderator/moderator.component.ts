@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { CategoryService } from '../../services/category/category.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { Supplier } from '../../models/supplier/supplier';
+import { Product } from '../../models/product/product';
 
 @Component({
   selector: 'app-moderator',
@@ -16,31 +17,38 @@ export class ModeratorComponent implements OnInit {
   products: any[] = [];
   suppliers: Supplier[] = [];
   showAddModal = false;
-  previewImage: string | null = null;
+  previewImages: string[] = [];
+  previewImagesAtTheStart: string[] = [];
   selectedCompanyId: number = 0;
   categories: Category[] = [];
+  isEditMode = false;
 
   newProduct: {
+    id: number | null;
     name: string;
     description: string;
     categoryId: number | null;
-    imageFile: File | null;
+    imageFiles: File[];
+    price: number | null;
+    stock: number | null;
   } = {
+      id: null,
       name: '',
       description: '',
       categoryId: null,
-      imageFile: null
+      imageFiles: [],
+      price: null,
+      stock: null
    };
 
   page = 1;
   size = 5;
   totalPages = 1;
-  constructor(private authService: AuthService,
+  constructor(private authService: AuthService, private productService: ProductService,
     private supplierService: SupplierService, private categoryService: CategoryService) { }
 
   ngOnInit(): void {
     this.fetchSuppliers();
-    this.fetchProducts();
   }
 
   fetchSuppliers(): void {
@@ -48,21 +56,25 @@ export class ModeratorComponent implements OnInit {
       this.supplierService.getUserSuppliers().subscribe(companies => {
         this.suppliers = companies
         this.selectedCompanyId = this.suppliers[0].id;
+        this.fetchProducts();
       });
     }
     if (this.authService.roleOfUser() === 'Admin') {
       this.supplierService.getAllSuppliers().subscribe(companies => {
         this.suppliers = companies
         this.selectedCompanyId = this.suppliers[0].id;
+        this.fetchProducts();
       });
     }
   }
 
   fetchProducts(): void {
-    //this.productService.getPagedProducts(this.page, this.size).subscribe(res => {
-    //  this.products = res.items;
-    //  this.totalPages = Math.ceil(res.total / this.size);
-    //});
+    this.productService.getPagedProductsOfSupplier(this.selectedCompanyId,
+      this.page, this.size).subscribe((res: { items: any[]; totalPages: number; }) => {
+      this.products = res.items;
+        this.totalPages = res.totalPages;
+        console.log(res)
+    });
   }
 
   fetchCategories(): void {
@@ -86,14 +98,34 @@ export class ModeratorComponent implements OnInit {
     }
   }
 
+  removeImage(index: number): void {
+    this.previewImages.splice(index, 1);
+    this.newProduct.imageFiles.splice(index, 1);
+  }
+
+
   editProduct(product: any): void {
-    console.log('Editing:', product);
+    this.newProduct = {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      categoryId: product.categoryId,
+      imageFiles: [],
+      price: parseFloat(product.price),
+      stock: product.stock
+    };
+
+    this.previewImages = product.images.map((image: any) => 'https://localhost:7060' + image.imageUrl);
+    this.previewImagesAtTheStart = [...this.previewImages];
+    this.isEditMode = true;
+    this.showAddModal = true;
     this.fetchCategories();
   }
 
+
   removeProduct(id: number): void {
     if (confirm('Are you sure you want to delete this product?')) {
-      //this.productService.deleteProduct(id).subscribe(() => this.fetchProducts());
+      this.productService.deleteProduct(id).subscribe(() => this.fetchProducts());
     }
   }
 
@@ -115,15 +147,25 @@ export class ModeratorComponent implements OnInit {
 
   cancelAddProduct(): void {
     this.showAddModal = false;
-    this.previewImage = null;
-    this.newProduct = { name: '', description: '', categoryId: null, imageFile: null };
+    this.previewImages = [];
+    this.previewImagesAtTheStart = [];
+    this.isEditMode = false;
+    this.newProduct = {
+      id: null,
+      name: '',
+      description: '',
+      categoryId: null,
+      imageFiles: [],
+      price: null,
+      stock: null
+    };
   }
 
   onFileSelect(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.newProduct.imageFile = file;
-      this.previewImage = URL.createObjectURL(file);
+    const files = Array.from(event.target.files) as File[];
+    if (files.length) {
+      this.newProduct.imageFiles = files;
+      this.previewImages.push(...files.map(file => URL.createObjectURL(file)));
     }
   }
 
@@ -139,9 +181,38 @@ export class ModeratorComponent implements OnInit {
   }
 
   submitProduct(): void {
-    console.log('Submitting', this.newProduct);
-    // Upload logic here...
-    this.cancelAddProduct();
+    const payload: Product = {
+      id: this.newProduct.id!,
+      name: this.newProduct.name,
+      description: this.newProduct.description,
+      categoryId: this.newProduct.categoryId!,
+      supplierId: this.selectedCompanyId,
+      price: this.newProduct.price!,
+      stock: this.newProduct.stock!
+    };
+
+
+    console.log("bai", this.previewImagesAtTheStart
+      .filter(img => !this.previewImages.includes(img))
+      .map(img => img.replace('https://localhost:7060', '')))
+    const request$ = this.isEditMode
+      ? this.productService.updateProduct(payload, this.newProduct.imageFiles,
+        this.previewImagesAtTheStart
+          .filter(img => !this.previewImages.includes(img))
+          .map(img => img.replace('https://localhost:7060', '')))
+      : this.productService.addProduct(payload, this.newProduct.imageFiles);
+
+    request$.subscribe({
+      next: () => {
+        alert(this.isEditMode ? 'Product updated' : 'Product added');
+        this.cancelAddProduct();
+        this.fetchProducts();
+      },
+      error: err => {
+        console.error('Operation failed', err);
+      }
+    });
   }
+
 
 }
