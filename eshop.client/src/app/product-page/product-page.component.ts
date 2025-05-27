@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { ProductService } from '../../services/product/product.service';
 import { UserService } from '../../services/user/user.service';
 import { Review } from '../../models/review/review';
+import { BasketService } from '../../services/basket/basket.service';
 
 @Component({
   selector: 'app-product-page',
@@ -24,11 +25,15 @@ export class ProductPageComponent {
   currentReviewPage = 1;
   reviewsPerPage = 3;
 
+  addingToBasket = false;
+  showSnackbar = false;
+
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private productService: ProductService,
     private userService: UserService,
+    private basketService: BasketService,
     private router: Router
   ) { }
 
@@ -68,25 +73,81 @@ export class ProductPageComponent {
     });
   }
 
-calculateAverageRating() {
-  if (!this.product || !this.product.reviews || this.product.reviews.length === 0) {
-    return 0; // No reviews, average is 0
+  calculateAverageRating() {
+    if (!this.product || !this.product.reviews || this.product.reviews.length === 0) {
+      return 0; // No reviews, average is 0
+    }
+
+    const sum = this.product.reviews.reduce((acc: number, review: Review) => acc + review.rating, 0);
+    return sum / this.product.reviews.length;
   }
 
-  const sum = this.product.reviews.reduce((acc: number, review: Review) => acc + review.rating, 0);
-  return sum / this.product.reviews.length;
-}
 
 
   addToBasket(product: any) {
     console.log('Added to basket:', product);
-    // your basket logic here
+    this.addingToBasket = true;
+
+    setTimeout(() => {
+      this.addingToBasket = false; // Reset after 2 seconds
+      this.showSnackbar = true;
+    }, 500);
+
+    let basket = JSON.parse(localStorage.getItem('basket') || '[]');
+
+    // Check if the product already exists in the basket
+    const existingItem = basket.find((item: any) => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += 1; // Increment quantity
+    } else {
+      basket.push({ ...product, quantity: 1 }); // Add new item with quantity
+    }
+
+    localStorage.setItem('basket', JSON.stringify(basket));
+    console.log('Basket updated:', basket);
+
+    // Hide snackbar after 3 seconds
+    setTimeout(() => {
+      this.showSnackbar = false;
+    }, 2000);
+
+    this.basketService.updateBasketCount();
   }
 
-  addToFavorites(product: any) {
-    console.log('Added to favorites:', product);
-    // your favorite logic here
+  isInFavorites(product: any): boolean {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    return favorites.some((item: any) => item.id === product.id);
   }
+
+
+
+  addToFavorites(product: any) {
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+    // Check if product is already in favorites
+    const alreadyFavorited = favorites.some((item: any) => item.id === product.id);
+
+    if (!alreadyFavorited) {
+      favorites.push(product);
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      console.log('Added to favorites:', product);
+    } else {
+      console.log('Product is already in favorites');
+    }
+  }
+
+  removeFromFavorites(productId: number) {
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+    // Filter out the product with the matching ID
+    favorites = favorites.filter((item: any) => item.id !== productId);
+
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    console.log(`Removed product with ID ${productId} from favorites`);
+  }
+
+
 
   submitReview() {
     if (!this.reviewText || !this.rating) return;

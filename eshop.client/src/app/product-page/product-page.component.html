@@ -1,4 +1,12 @@
 <div class="max-w-6xl mx-auto px-4 py-10">
+
+  <!-- Snackbar Notification -->
+  <div *ngIf="showSnackbar"
+       class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-[#FCF259] text-[#4A102A] px-6 py-3 rounded shadow-lg font-semibold transition-opacity duration-300"
+       [class.opacity-0]="!showSnackbar">
+    Product was added to basket!
+  </div>
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
     <!-- Left: Product Images -->
     <div class="w-full flex flex-col space-y-4">
@@ -45,14 +53,36 @@
       <p class="text-[#FCF259] text-xl font-semibold mb-4">{{ product.price | currency }}</p>
 
       <button (click)="addToBasket(product)"
-              class="w-full bg-[#C5172E] hover:bg-[#85193C] text-white font-semibold py-3 px-4 rounded-lg transition mb-3">
-        Add to Basket
+              [disabled]="addingToBasket"
+              [ngClass]="{
+          'bg-[#C5172E] hover:bg-[#85193C]': !addingToBasket,
+          'bg-[#4A102A] cursor-not-allowed': addingToBasket
+        }"
+              class="w-full text-white font-semibold py-3 px-4 rounded-lg transition mb-3">
+
+        <span *ngIf="!addingToBasket">Add to Basket</span>
+        <span *ngIf="addingToBasket" class="flex items-center justify-center space-x-2">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <span>Adding...</span>
+        </span>
+
       </button>
 
-      <button (click)="addToFavorites(product)"
+
+      <button *ngIf="!isInFavorites(product)" (click)="addToFavorites(product)"
               class="w-full border border-[#FCF259] text-[#FCF259] font-semibold py-3 px-4 rounded-lg hover:bg-[#FCF259] hover:text-[#4A102A] transition">
         Add to Favorites
       </button>
+
+      <button *ngIf="isInFavorites(product)" (click)="removeFromFavorites(product.id)"
+              class="w-full bg-[#FCF259] text-[#4A102A] font-semibold py-3 px-4 rounded-lg hover:bg-[#E6D945] transition">
+        Remove from Favorites
+      </button>
+
+
     </div>
   </div>
 
@@ -127,18 +157,18 @@
       </div>
     </div>
 
-      <!-- Pagination Controls -->
-      <div *ngIf="totalReviewPages > 0" class="mt-6 flex justify-center space-x-2">
-        <button (click)="prevReviewPage()" [disabled]="currentReviewPage === 1"
-                class="px-3 py-1 bg-[#FCF259] text-[#4A102A] rounded hover:bg-[#e6d945] disabled:opacity-50 disabled:cursor-not-allowed">
-          Prev
-        </button>
-        <span class="text-[#4A102A] font-medium">Page {{ currentReviewPage }} of {{ totalReviewPages }}</span>
-        <button (click)="nextReviewPage()" [disabled]="currentReviewPage === totalReviewPages"
-                class="px-3 py-1 bg-[#FCF259] text-[#4A102A] rounded hover:bg-[#e6d945] disabled:opacity-50 disabled:cursor-not-allowed">
-          Next
-        </button>
-      </div>
+    <!-- Pagination Controls -->
+    <div *ngIf="totalReviewPages > 0" class="mt-6 flex justify-center space-x-2">
+      <button (click)="prevReviewPage()" [disabled]="currentReviewPage === 1"
+              class="px-3 py-1 bg-[#FCF259] text-[#4A102A] rounded hover:bg-[#e6d945] disabled:opacity-50 disabled:cursor-not-allowed">
+        Prev
+      </button>
+      <span class="text-[#4A102A] font-medium">Page {{ currentReviewPage }} of {{ totalReviewPages }}</span>
+      <button (click)="nextReviewPage()" [disabled]="currentReviewPage === totalReviewPages"
+              class="px-3 py-1 bg-[#FCF259] text-[#4A102A] rounded hover:bg-[#e6d945] disabled:opacity-50 disabled:cursor-not-allowed">
+        Next
+      </button>
     </div>
+  </div>
 
 </div>

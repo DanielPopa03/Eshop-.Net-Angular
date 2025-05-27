@@ -74,8 +74,17 @@
           </button>
         </ng-template>
 
-        <!-- Basket Icon -->
-        <img src="/basket.svg" alt="Basket" class="w-6 h-6 cursor-pointer" />
+        <!-- Basket Icon with item count badge -->
+        <div class="relative cursor-pointer">
+          <img (click)="redirectToBasket()" src="/basket.svg" alt="Basket" class="w-6 h-6" />
+
+          <!-- Badge -->
+          <span *ngIf="basketItemCount > 0"
+                class="absolute -top-2 -right-2 bg-[#FCF259] text-[#4A102A] text-xs font-bold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center">
+            {{ basketItemCount }}
+          </span>
+        </div>
+
       </div>
 
     </div>
