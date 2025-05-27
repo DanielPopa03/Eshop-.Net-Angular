@@ -16,6 +16,8 @@
         public ICollection<OrderedProduct> OrderedProducts { get; set; } = new List<OrderedProduct>();
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        public ICollection<ProductAttribute> Attributes { get; set; } = new List<ProductAttribute>();
     }
 
 }

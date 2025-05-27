@@ -19,8 +19,10 @@ namespace Eshop.Server.Data
         public DbSet<OrderedProduct> OrderedProducts { get; set; } = null!;
         public DbSet<Address> Addresses { get; set; } = null!;
         public DbSet<Role> Roles { get; set; } = null!;
-
         public DbSet<Review> Reviews { get; set; } = null!;
+        public DbSet<AttributeCat> AttributeCats { get; set; } = null!;
+        public DbSet<ProductAttribute> ProductAttributes { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().ToTable("Role");
@@ -42,6 +44,27 @@ namespace Eshop.Server.Data
 
             modelBuilder.Entity<Address>()
                 .HasKey(op => new { op.Number, op.UserId });
+
+            modelBuilder.Entity<ProductAttribute>()
+                .HasKey(pa => new { pa.ProductId, pa.AttributeId });
+
+            modelBuilder.Entity<ProductAttribute>()
+                .HasOne(pa => pa.Product)
+                .WithMany(p => p.Attributes)
+                .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<AttributeCat>()
+                .HasOne(a => a.Category)
+                .WithMany(c => c.Attributes)
+                .HasForeignKey(a => a.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AttributeCat>()
+                .HasMany(a => a.ProductAttributes)
+                .WithOne(pa => pa.Attribute)
+                .HasForeignKey(pa => pa.AttributeId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Address>()
             .HasOne(a => a.User)

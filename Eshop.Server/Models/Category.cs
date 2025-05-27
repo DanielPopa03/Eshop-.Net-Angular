@@ -6,5 +6,7 @@
         public string Name { get; set; } = null!;
 
         public ICollection<Product> Products { get; set; } = new List<Product>();
+
+        public ICollection<AttributeCat> Attributes { get; set; } = new List<AttributeCat>();
     }
 }

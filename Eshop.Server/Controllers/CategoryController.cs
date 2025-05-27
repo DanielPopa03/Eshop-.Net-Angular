@@ -1,4 +1,7 @@
-﻿using Eshop.Server.Services;
+﻿using Eshop.Server.Models;
+using Eshop.Server.Models.DTO;
+using Eshop.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eshop.Server.Controllers
@@ -28,6 +31,7 @@ namespace Eshop.Server.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
         [HttpGet]
         [Route("getCategoryById")]
         public async Task<IActionResult> GetCategoryById(int id)
@@ -46,5 +50,62 @@ namespace Eshop.Server.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("AddCategory")]
+        public async Task<IActionResult> AddCategory([FromBody] CreateCategoryDto category)
+        {
+            if (category == null)
+                return BadRequest("Category cannot be null.");
+            try
+            {
+                // Assuming you have a method to add a category in the service
+                var addedCategory = await categoryService.AddCategoryAsync(category);
+                return CreatedAtAction(nameof(GetCategoryById), new { id = addedCategory.CategoryId }, addedCategory);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to add category: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut]
+        [Route("UpdateCategory/{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CreateCategoryDto dto)
+        {
+            try
+            {
+                var updated = await categoryService.UpdateCategoryAsync(id, dto);
+                if (updated == null) return NotFound("Category not found.");
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to update category: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete]
+        [Route("DeleteCategory/{id}")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            try
+            {
+                var deleted = await categoryService.DeleteCategoryAsync(id);
+                if (!deleted) return NotFound("Category not found.");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to delete category: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
     }
 }

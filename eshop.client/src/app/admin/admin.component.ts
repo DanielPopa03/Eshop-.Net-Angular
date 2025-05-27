@@ -3,6 +3,9 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { UserService } from '../../services/user/user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CategoryService } from '../../services/category/category.service';
+import { Category } from '../../models/category/category';
+import { AttributeCat } from '../../models/attribute-cat/attribute-cat';
 
 @Component({
   selector: 'app-admin',
@@ -15,11 +18,13 @@ export class AdminComponent implements OnInit {
   page = 1;
   size = 5;
   totalPages = 0;
-  constructor(private authService: AuthService, private supplierService: SupplierService, private userService: UserService, private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService, private supplierService: SupplierService,
+    private userService: UserService, private categoryService: CategoryService,private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.fetchCompanies();
     this.fetchModerators();
+    this.loadCategories();
   }
 
   fetchCompanies(): void {
@@ -158,5 +163,98 @@ export class AdminComponent implements OnInit {
     this.cancelAddModerator();
 
     this.fetchModerators();
+  }
+
+  categories: Category[] = [];
+  showCategoryModal = false;
+  isEditMode = false;
+  editingCategoryId: number | null = null;
+
+  newCategory = {
+    name: '',
+    attributes: [] as { name: string; typeOfFilter: string }[]
+  };
+
+  loadCategories(): void {
+    this.categoryService.getAllCategories().subscribe({
+      next: (response) => {
+        this.categories = response;
+        console.log(this.categories);
+      },
+      error: (error) => {
+        console.log("Error: ", error);
+      }
+    });
+  }
+
+  openCategoryModal(category?: Category): void {
+    this.showCategoryModal = true;
+    this.isEditMode = !!category;
+
+    if (category) {
+      this.editingCategoryId = category.categoryId!;
+      this.newCategory = {
+        name: category.name,
+        attributes: category.attributes.map(a => ({
+          name: a.name,
+          typeOfFilter: a.typeOfFilter
+        }))
+      };
+    } else {
+      this.editingCategoryId = null;
+      this.newCategory = {
+        name: '',
+        attributes: []
+      };
+    }
+  }
+
+  cancelAddCategory(): void {
+    this.showCategoryModal = false;
+    this.newCategory = { name: '', attributes: [] };
+    this.isEditMode = false;
+    this.editingCategoryId = null;
+  }
+
+  addAttribute(): void {
+    this.newCategory.attributes.push({ name: '', typeOfFilter: 'Dropdown' });
+  }
+
+  removeAttribute(index: number): void {
+    this.newCategory.attributes.splice(index, 1);
+  }
+
+  submitCategory(): void {
+    const categoryToSubmit = new Category();
+    categoryToSubmit.name = this.newCategory.name;
+    categoryToSubmit.attributes = this.newCategory.attributes.map(attr => {
+      const a = new AttributeCat();
+      a.name = attr.name;
+      a.typeOfFilter = attr.typeOfFilter;
+      return a;
+    });
+
+    const request$ = this.isEditMode && this.editingCategoryId
+      ? this.categoryService.updateCategory(this.editingCategoryId, categoryToSubmit)
+      : this.categoryService.addCategory(categoryToSubmit);
+
+    request$.subscribe({
+      next: () => {
+        this.loadCategories();
+        this.cancelAddCategory();
+      },
+      error: err => {
+        console.error('Failed to submit category', err);
+      }
+    });
+  }
+
+  deleteCategory(id: number): void {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+
+    this.categoryService.deleteCategory(id).subscribe({
+      next: () => this.loadCategories(),
+      error: err => console.error('Failed to delete category', err)
+    });
   }
 }

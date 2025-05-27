@@ -26,6 +26,8 @@ export class ProductPageComponent {
 
   ngOnInit(): void {
     const productId = this.route.snapshot.queryParamMap.get('id');
+    if (!productId)
+      this.router.navigate(['/index']);
     this.product.id = productId;
     this.fetchProduct(productId);
 

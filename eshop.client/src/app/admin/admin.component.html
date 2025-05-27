@@ -31,7 +31,7 @@
         <td>{{ moderator.name }}</td>
         <td class="flex space-x-2">
           <button (click)="removeModerator(moderator.id)">
-            <img src="/assets/icons/delete.svg" alt="Delete" class="w-5 h-5" />
+            <img src="delete.svg" alt="Delete" class="w-5 h-5" />
           </button>
         </td>
       </tr>
@@ -82,3 +82,90 @@
     </div>
   </div>
 </div>
+<!-- Category Management UI -->
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded mt-8">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-[#4A102A] font-bold text-xl">Manage Categories</h2>
+    <button (click)="openCategoryModal()"
+            class="bg-[#FCF259] text-[#4A102A] font-semibold px-4 py-2 rounded hover:bg-[#e6d945]">
+      + Add Category
+    </button>
+  </div>
+
+  <!-- Category List Table -->
+  <table class="w-full text-left table-auto border-separate border-spacing-y-2 mt-4">
+    <thead class="text-[#4A102A] font-bold">
+      <tr>
+        <th>Name</th>
+        <th>Attributes</th>
+        <th class="text-center w-32">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let category of categories" class="bg-[#f9f9f9] rounded">
+        <td class="py-2 px-4">{{ category.name }}</td>
+        <td class="py-2 px-4">
+          <ul *ngIf="category.attributes?.length" class="list-disc pl-5">
+            <li *ngFor="let attr of category.attributes">{{ attr.name }} ({{ attr.typeOfFilter }})</li>
+          </ul>
+          <span *ngIf="!category.attributes?.length">—</span>
+        </td>
+        <td class="py-2 px-4 flex justify-center items-center gap-3">
+          <button (click)="openCategoryModal(category)" title="Edit"
+                  class="p-1 rounded hover:bg-[#FCF259] hover:text-[#4A102A] transition">
+            <img src="edit.svg" alt="Edit" class="w-5 h-5" />
+          </button>
+          <button (click)="deleteCategory(category.categoryId!)" title="Delete"
+                  class="p-1 rounded hover:bg-red-100 hover:text-red-600 transition">
+            <img src="delete.svg" alt="Delete" class="w-5 h-5" />
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add/Edit Category Modal -->
+<div *ngIf="showCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
+    <h3 class="text-[#4A102A] font-bold text-lg mb-4">{{ isEditMode ? 'Edit Category' : 'Create New Category' }}</h3>
+
+    <input type="text" [(ngModel)]="newCategory.name" placeholder="Category Name"
+           class="w-full border rounded px-4 py-2 mb-4 focus:ring-[#FCF259] focus:outline-none" />
+
+    <!-- Attribute Inputs -->
+    <div class="space-y-2">
+      <div *ngFor="let attr of newCategory.attributes; let i = index" class="flex items-center gap-2">
+        <input type="text" [(ngModel)]="newCategory.attributes[i].name" placeholder="Attribute Name"
+               class="flex-1 border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+
+        <select [(ngModel)]="newCategory.attributes[i].typeOfFilter"
+                class="border rounded px-3 py-2 focus:ring-[#FCF259] focus:outline-none">
+          <option value="Range">Range</option>
+          <option value="Search-Dropdown">Search-Dropdown</option>
+          <option value="Dropdown">Dropdown</option>
+          <option value="Boolean">Yes / No</option>
+        </select>
+
+        <button (click)="removeAttribute(i)"
+                class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
+          &times;
+        </button>
+      </div>
+    </div>
+
+    <button (click)="addAttribute()"
+            class="mt-4 px-4 py-2 bg-[#4A102A] text-[#FCF259] rounded hover:bg-[#85193C]">
+      + Add Attribute
+    </button>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-2 mt-6">
+      <button (click)="cancelAddCategory()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+      <button (click)="submitCategory()" class="px-4 py-2 bg-[#4A102A] text-white rounded hover:bg-[#85193C]">
+        {{ isEditMode ? 'Update' : 'Add' }} Category
+      </button>
+    </div>
+  </div>
+</div>
+
