@@ -19,6 +19,13 @@ namespace Eshop.Server.Services
             return u;
         }
 
+        public User? GetUserById(int id)
+        {
+            User? u = context.Users
+                .Include (u => u.Role)
+                .SingleOrDefault (u => u.Id == id);
+            return u;
+        }
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
@@ -53,6 +60,6 @@ namespace Eshop.Server.Services
             return (users, totalCount);
         }
 
-
+       
     }
 }

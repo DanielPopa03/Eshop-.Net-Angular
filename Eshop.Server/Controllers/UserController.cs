@@ -63,6 +63,18 @@ namespace Eshop.Server.Controllers
             Console.WriteLine(udto.Name);
             return Ok(udto);
         }
+
+        [HttpGet]
+        [Route("getUserById")]
+        public async Task<IActionResult> GetUserById([FromQuery] int id)
+        {
+            User? u = userService.GetUserById(id);
+            if (u == null)
+                return NotFound();
+            UserInfoDto udto = new UserInfoDto(u);
+            Console.WriteLine(udto.Name);
+            return Ok(udto);
+        }
     }
 
 }

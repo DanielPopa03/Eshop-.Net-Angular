@@ -127,13 +127,32 @@ namespace Eshop.Server.Services
         public async Task<bool> AddReview(Review Review)
         {
             var ProductExists = await context.Products.AnyAsync(p => p.Id == Review.ProductId);
-            if (ProductExists)
+            var UserExists = await context.Users.AnyAsync(u => u.Id == Review.UserId);
+
+            if (!ProductExists)
+                Console.WriteLine("Product not found: " + Review.ProductId);
+
+            if (!UserExists)
+                Console.WriteLine("User not found: " + Review.UserId);
+
+
+            if (ProductExists && UserExists)
             {
                 await context.Reviews.AddAsync(Review);
                 await context.SaveChangesAsync();
                 return true;
             }
+
             return false;
+        }
+
+
+        public async Task<Product?> GetProduct(int productId)
+        {
+            return await context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.Id == productId);
         }
     }
 }

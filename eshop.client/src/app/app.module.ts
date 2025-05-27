@@ -15,6 +15,7 @@ import { ResetPasswordComponent } from './login-page/reset-password/reset-passwo
 import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 import { ModeratorComponent } from './moderator/moderator.component';
 import { AuthInterceptor } from '../interceptor/authorization.interceptor';
+import { FooterComponent } from '../app/footer/footer.component';
 
 
 @NgModule({
@@ -28,6 +29,7 @@ import { AuthInterceptor } from '../interceptor/authorization.interceptor';
     ResetPasswordComponent,
     WelcomePageComponent,
     ModeratorComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,

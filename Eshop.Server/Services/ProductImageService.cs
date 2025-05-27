@@ -26,7 +26,7 @@ namespace Eshop.Server.Services
             .OrderByDescending(pi => pi.Number)
             .FirstOrDefaultAsync();
 
-            var max_number = imageWithMaxNumber.Number;
+            var max_number = imageWithMaxNumber == null ? 0 : imageWithMaxNumber.Number;
 
             for (int i = 0; i < files.Count; i++)
             {
