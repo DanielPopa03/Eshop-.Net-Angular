@@ -6,6 +6,7 @@ import { ProductService } from '../../services/product/product.service';
 import { UserService } from '../../services/user/user.service';
 import { Review } from '../../models/review/review';
 import { BasketService } from '../../services/basket/basket.service';
+import { FavoritesService } from '../../services/favorites/favorites.service';
 
 @Component({
   selector: 'app-product-page',
@@ -28,12 +29,15 @@ export class ProductPageComponent {
   addingToBasket = false;
   showSnackbar = false;
 
+  fetching = true;
+
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private productService: ProductService,
     private userService: UserService,
     private basketService: BasketService,
+    private favoritesService: FavoritesService,
     private router: Router
   ) { }
 
@@ -60,6 +64,8 @@ export class ProductPageComponent {
           this.selectedImageIndex = 0;
           this.selectedImage = 'https://localhost:7060' + res.images[0].imageUrl;
         }
+
+        this.fetching = false;
 
         this.product.reviews.forEach((review: Review) => {
           this.userService.getUserNameById(review.userId).subscribe(name => {
@@ -135,6 +141,8 @@ export class ProductPageComponent {
     } else {
       console.log('Product is already in favorites');
     }
+
+    this.favoritesService.updateFavoritesCount();
   }
 
   removeFromFavorites(productId: number) {
@@ -145,6 +153,8 @@ export class ProductPageComponent {
 
     localStorage.setItem('favorites', JSON.stringify(favorites));
     console.log(`Removed product with ID ${productId} from favorites`);
+
+    this.favoritesService.updateFavoritesCount();
   }
 
 

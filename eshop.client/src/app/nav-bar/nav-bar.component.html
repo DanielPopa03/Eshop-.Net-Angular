@@ -74,13 +74,23 @@
           </button>
         </ng-template>
 
+        <div class="relative cursor-pointer" (click)="redirectToFavorites()">
+          <img src="/favorites.svg" alt="Favorites" class="w-6 h-6" />
+
+          <span *ngIf="favoritesCount > 0"
+                class="absolute -top-2 -right-3 bg-[#FCF259] text-[#4A102A] text-xs font-bold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center z-10 select-none">
+            {{ favoritesCount }}
+          </span>
+        </div>
+
+
         <!-- Basket Icon with item count badge -->
         <div class="relative cursor-pointer">
           <img (click)="redirectToBasket()" src="/basket.svg" alt="Basket" class="w-6 h-6" />
 
           <!-- Badge -->
-          <span *ngIf="basketItemCount > 0"
-                class="absolute -top-2 -right-2 bg-[#FCF259] text-[#4A102A] text-xs font-bold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center">
+          <span (click)="redirectToBasket()" *ngIf="basketItemCount > 0"
+                class="absolute -top-2 -right-3 bg-[#FCF259] text-[#4A102A] text-xs font-bold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center">
             {{ basketItemCount }}
           </span>
         </div>

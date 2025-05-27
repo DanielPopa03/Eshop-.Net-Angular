@@ -76,4 +76,8 @@ export class BasketPageComponent implements OnInit {
     localStorage.setItem('basket', JSON.stringify(this.basket));
     this.basketService.updateBasketCount();  // Update basket count if you have this service
   }
+
+  redirectToItem(itemId: number) {
+    this.router.navigate(['/product'], { queryParams: { id: itemId } });
+  }
 }

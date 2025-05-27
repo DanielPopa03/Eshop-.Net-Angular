@@ -53,7 +53,7 @@
       <p class="text-[#FCF259] text-xl font-semibold mb-4">{{ product.price | currency }}</p>
 
       <button (click)="addToBasket(product)"
-              [disabled]="addingToBasket"
+              [disabled]="addingToBasket || fetching == true"
               [ngClass]="{
           'bg-[#C5172E] hover:bg-[#85193C]': !addingToBasket,
           'bg-[#4A102A] cursor-not-allowed': addingToBasket
@@ -72,12 +72,12 @@
       </button>
 
 
-      <button *ngIf="!isInFavorites(product)" (click)="addToFavorites(product)"
+      <button [disabled]="fetching == true" *ngIf="!isInFavorites(product)" (click)="addToFavorites(product)"
               class="w-full border border-[#FCF259] text-[#FCF259] font-semibold py-3 px-4 rounded-lg hover:bg-[#FCF259] hover:text-[#4A102A] transition">
         Add to Favorites
       </button>
 
-      <button *ngIf="isInFavorites(product)" (click)="removeFromFavorites(product.id)"
+      <button [disabled]="fetching == true" *ngIf="isInFavorites(product)" (click)="removeFromFavorites(product.id)"
               class="w-full bg-[#FCF259] text-[#4A102A] font-semibold py-3 px-4 rounded-lg hover:bg-[#E6D945] transition">
         Remove from Favorites
       </button>
