@@ -10,7 +10,8 @@ import { ForgotPasswordComponent } from './login-page/forgot-password/forgot-pas
 import { ResetPasswordComponent } from './login-page/reset-password/reset-password.component';
 import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 import { ModeratorComponent } from './moderator/moderator.component';
-
+import { BasketPageComponent } from './basket-page/basket-page.component';
+import { FavoritesPageComponent } from './favorites-page/favorites-page.component';
 export function initializeAuth(authService: AuthService) {
   return () => authService.init();
 }
@@ -24,6 +25,8 @@ const routes: Routes = [
   { path: 'product', component: ProductPageComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'basket', component: BasketPageComponent },
+  { path: 'favorites', component: FavoritesPageComponent }
 ];
 
 @NgModule({

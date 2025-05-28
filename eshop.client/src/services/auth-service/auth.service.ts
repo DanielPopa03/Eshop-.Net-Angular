@@ -91,6 +91,14 @@ export class AuthService {
     return '';
   }
 
+  idOfUser(): number {
+    const user = this.userSubject.getValue();
+    if (user) {
+      return user.id;
+    }
+    return -1;
+  }
+
   private setToken(token: string, days: number = 1): void {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
