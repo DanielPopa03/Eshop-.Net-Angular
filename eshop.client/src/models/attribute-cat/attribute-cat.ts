@@ -1,6 +1,6 @@
 export class AttributeCat {
-  id!: number; 
+  id?: number; 
   name!: string;    
-  typeOfFilter!: string;     
-  categoryId!: number; 
+  typeOfFilter!: string;
+  categoryId!: number;
 }

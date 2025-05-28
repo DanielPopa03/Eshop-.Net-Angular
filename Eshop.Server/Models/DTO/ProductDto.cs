@@ -1,4 +1,8 @@
-﻿namespace Eshop.Server.Models.DTO
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+
+namespace Eshop.Server.Models.DTO
 {
     public class ProductDto
     {
@@ -10,9 +14,9 @@
         public string Name { get; set; } = null!;
         public int Price { get; set; }
 
-        public Product toProduct()
+        public Product toProduct(List<AttributeValueDto> attributes)
         {
-            Product newProduct = new Product
+            return new Product
             {
                 Id = this.Id,
                 SupplierId = this.SupplierId,
@@ -20,9 +24,13 @@
                 Stock = this.Stock,
                 Description = this.Description,
                 Name = this.Name,
-                Price = this.Price
+                Price = this.Price,
+                Attributes = attributes.Select(a => new ProductAttribute
+                {
+                    AttributeId = a.AttributeId,
+                    Value = a.Value
+                }).ToList()
             };
-            return newProduct;
         }
     }
 }

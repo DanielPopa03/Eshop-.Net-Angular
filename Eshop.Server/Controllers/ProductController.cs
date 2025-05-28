@@ -4,6 +4,8 @@ using Eshop.Server.Models.DTO;
 using Eshop.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace Eshop.Server.Controllers
 {
@@ -22,10 +24,16 @@ namespace Eshop.Server.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         [Route("AddProduct")]
-        public async Task<IActionResult> AddProduct([FromForm] ProductUploadDto dto, [FromForm] List<IFormFile> productImages)
+        public async Task<IActionResult> AddProduct(
+            [FromForm] ProductUploadDto dto,
+            [FromForm(Name = "attributeValues")] string attributeValuesJson,
+            [FromForm] List<IFormFile> productImages)
         {
             try
             {
+                var attributes = JsonSerializer.Deserialize<List<AttributeValueDto>>(attributeValuesJson); ;
+                Debug.WriteLine("Baiii!!" + attributes.Count);
+
                 var newProduct = new Product
                 {
                     SupplierId = dto.SupplierId,
@@ -33,21 +41,30 @@ namespace Eshop.Server.Controllers
                     Stock = dto.Stock,
                     Name = dto.Name,
                     Description = dto.Description,
-                    Price = dto.Price
+                    Price = dto.Price,
+                    Attributes = attributes.Select(a => new ProductAttribute
+                    {
+                        AttributeId = a.AttributeId,
+                        Value = a.Value
+                    }).ToList()
                 };
 
+                Debug.WriteLine($"bai {newProduct.Attributes.Count} {attributes.Count}");
+
                 var product = await productService.AddProductAsync(newProduct);
-                System.Diagnostics.Debug.WriteLine(product.Id);
+                Debug.WriteLine(product.Id);
+
                 await productImageService.SaveImagesAsync(product.Id, productImages);
 
                 return Ok(product);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to add product: {ex.Message}");
+                Debug.WriteLine($"Failed to add product: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
+
 
         [HttpGet]
         [Route("GetPagedProductsOfSupplier")]
@@ -75,12 +92,17 @@ namespace Eshop.Server.Controllers
         [Route("UpdateProduct")]
         public async Task<IActionResult> UpdateProduct(
         [FromForm] ProductDto updatedProduct,
+        [FromForm(Name = "attributeValues")] string attributeValuesJson,
         [FromForm] List<IFormFile>? productImages,
         [FromForm] List<String>? deleteImgByUrl)
         {
             try
             {
-                await productService.UpdateProductAsync(updatedProduct.toProduct(), deleteImgByUrl, productImages);
+                var attributes = JsonSerializer.Deserialize<List<AttributeValueDto>>(attributeValuesJson); ;
+                Debug.WriteLine("Baiii!!" + attributes.Count);
+
+                await productService.UpdateProductAsync(updatedProduct.toProduct(attributes),
+                    deleteImgByUrl, productImages);
                 return Ok();
             }
             catch (Exception ex)

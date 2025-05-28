@@ -1,5 +1,4 @@
-import { Category } from "../category/category";
-import { Supplier } from "../supplier/supplier";
+import { ProductAttribute } from "../product-attribute/product-attribute";
 
 export class Product {
   id?: number;
@@ -9,4 +8,5 @@ export class Product {
   name!: string;
   price!: number;
   stock!: number;
+  attributes!: ProductAttribute[];
 }

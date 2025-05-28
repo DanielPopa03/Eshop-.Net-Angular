@@ -23,9 +23,24 @@ namespace Eshop.Server.Services
 
         public async Task<Product> AddProductAsync(Product newProduct)
         {
+            var attributeValues = newProduct.Attributes?.ToList();
+            newProduct.Attributes = null;
+
             var entry = await context.Products.AddAsync(newProduct);
             await context.SaveChangesAsync();
-            return entry.Entity;
+
+            if (attributeValues != null)
+            {
+                foreach (var attr in attributeValues)
+                {
+                    attr.ProductId = newProduct.Id; 
+                }
+                await context.ProductAttributes.AddRangeAsync(attributeValues);
+                await context.SaveChangesAsync();
+            }
+            newProduct.Attributes = attributeValues;
+
+            return newProduct;
         }
 
         public async Task<(List<Product> Items, int TotalPages)> GetPagedProductsOfSupplierAsync(int supplierId, int pageIndex, int pageSize)
@@ -38,6 +53,7 @@ namespace Eshop.Server.Services
 
             var products = await context.Products
                 .Include(p => p.Images)
+                .Include(p => p.Attributes)
                 .Where(p => p.SupplierId == supplierId)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
@@ -50,6 +66,7 @@ namespace Eshop.Server.Services
         {
             var existing = await context.Products
                 .Include(p => p.Images)
+                .Include(p => p.Attributes)
                 .FirstOrDefaultAsync(p => p.Id == updatedProduct.Id);
 
             if (existing == null) throw new Exception("Product not found");
@@ -59,6 +76,14 @@ namespace Eshop.Server.Services
             existing.Price = updatedProduct.Price;
             existing.Stock = updatedProduct.Stock;
             existing.CategoryId = updatedProduct.CategoryId;
+
+            existing.Attributes.Clear();
+            existing.Attributes = updatedProduct.Attributes.Select(a => new ProductAttribute
+            {
+                ProductId = updatedProduct.Id,
+                AttributeId = a.AttributeId,
+                Value = a.Value
+            }).ToList();
 
             if (!deleteImgByUrl.IsNullOrEmpty())
             {

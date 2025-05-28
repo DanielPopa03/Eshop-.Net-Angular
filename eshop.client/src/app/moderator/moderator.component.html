@@ -92,9 +92,75 @@
       <textarea [(ngModel)]="newProduct.description" placeholder="Description"
                 class="w-full border rounded px-4 py-2 h-24 focus:ring-[#FCF259] focus:outline-none"></textarea>
       <select [(ngModel)]="newProduct.categoryId"
+              (change)="onCategoryChange()"
               class="w-full border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none">
         <option *ngFor="let cat of categories" [value]="cat.categoryId">{{ cat.name }}</option>
       </select>
+
+      <!-- Attribute Section -->
+      <div class="border-t pt-4 mt-4">
+        <h4 class="text-[#4A102A] font-semibold mb-2">Attributes</h4>
+
+        <!-- Add Attribute Dropdown -->
+        <div class="flex gap-2 items-center mb-4">
+          <select [(ngModel)]="selectedAttributeId" class="border rounded px-3 py-2 flex-1">
+            <option [ngValue]="null" disabled selected>Choose attribute...</option>
+            <option *ngFor="let attr of availableAttributes" [ngValue]="attr.id">{{ attr.name }}</option>
+          </select>
+          <button (click)="addAttributeField()" class="bg-[#4A102A] text-[#FCF259] px-3 py-2 rounded hover:bg-[#85193C]">+ Add</button>
+        </div>
+
+        <div *ngFor="let attr of newProduct.attributeValues; let i = index" class="flex flex-col mb-3 relative group">
+          <label class="text-sm text-gray-600 font-medium">{{ attr.name }}</label>
+
+          <!-- Delete button -->
+          <button type="button"
+                  class="absolute top-0 right-0 text-red-600 font-bold text-lg hidden group-hover:block"
+                  (click)="newProduct.attributeValues.splice(i, 1)">
+            &times;
+          </button>
+
+          <!-- Dynamic Input -->
+          <ng-container [ngSwitch]="attr.typeOfFilter">
+            <input *ngSwitchCase="'Range'" type="number" [(ngModel)]="attr.value"
+                   class="border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+
+            <input *ngSwitchCase="'Search-Dropdown'" type="text" [(ngModel)]="attr.value"
+                   placeholder="Search..." class="border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+
+            <input *ngSwitchCase="'Dropdown'" type="text" [(ngModel)]="attr.value"
+                   placeholder="Enter option" class="border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+
+            <label *ngSwitchCase="'Boolean'" class="inline-flex items-center cursor-pointer mt-1">
+              <!-- Convertim manual între string și boolean -->
+              <input type="checkbox"
+                     [checked]="attr.value === 'true'"
+                     (change)="onBooleanChange($event, attr)"
+                     [name]="'bool-' + i"
+                     class="sr-only peer" />
+
+
+
+              <div class="relative w-11 h-6 bg-gray-200 rounded-full peer
+       peer-checked:bg-[#4A102A]
+       peer-checked:after:translate-x-full
+       after:content-[''] after:absolute after:top-[2px] after:start-[2px]
+       after:bg-white after:border-gray-300 after:border after:rounded-full
+       after:h-5 after:w-5 after:transition-all">
+              </div>
+
+              <span class="ms-2 text-sm text-gray-700">
+                {{ attr.value === 'true' ? 'Yes' : 'No' }}
+              </span>
+            </label>
+
+            <input *ngSwitchDefault type="text" [(ngModel)]="attr.value"
+                   class="border rounded px-4 py-2 focus:ring-[#FCF259] focus:outline-none" />
+          </ng-container>
+        </div>
+
+      </div>
+
 
       <!-- Actions -->
       <div class="flex justify-end space-x-2 mt-4">

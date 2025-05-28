@@ -14,22 +14,29 @@ export class ProductService {
     constructor(private http: HttpClient, private authService: AuthService) { }
 
     addProduct(product: Product, imageFiles: File[]): Observable<any> {
-        console.log(product);
-        const formData = new FormData();
-        formData.append('Name', product.name);
+      console.log(product);
+      const formData = new FormData();
+      formData.append('Name', product.name);
 
-        formData.append('SupplierId', product.supplierId.toString());
-        formData.append('CategoryId', product.categoryId.toString());
-        formData.append('Stock', product.stock.toString());
-        formData.append('Description', product.description);
-        formData.append('Price', product.price.toString());
+      formData.append('SupplierId', product.supplierId.toString());
+      formData.append('CategoryId', product.categoryId.toString());
+      formData.append('Stock', product.stock.toString());
+      formData.append('Description', product.description);
+      formData.append('Price', product.price.toString());
 
+      const pascalCaseAttributes = product.attributes.map(attr => ({
+        AttributeId: attr.attributeId,
+        Value: attr.value
+      }));
 
-        imageFiles.forEach(file => {
-            formData.append('productImages', file);
-        });
-        console.log(formData)
-        return this.http.post(`${this.baseUrl}/Product/AddProduct`, formData);
+      formData.append('attributeValues', JSON.stringify(pascalCaseAttributes));
+
+      console.log(formData.get('attributeValues'));
+
+      imageFiles.forEach(file => {
+          formData.append('productImages', file);
+      });
+      return this.http.post(`${this.baseUrl}/Product/AddProduct`, formData);
     }
 
     updateProduct(product: Product, imageFiles: File[], deleteImgByUrl: string[]): Observable<any> {
@@ -42,6 +49,13 @@ export class ProductService {
         formData.append('SupplierId', product.supplierId.toString());
         formData.append('Price', product.price.toString());
         formData.append('Stock', product.stock.toString());
+
+        const pascalCaseAttributes = product.attributes.map(attr => ({
+          AttributeId: attr.attributeId,
+          Value: attr.value
+        }));
+
+        formData.append('attributeValues', JSON.stringify(pascalCaseAttributes));
 
         imageFiles.forEach(file => {
             formData.append('productImages', file);
