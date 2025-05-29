@@ -12,6 +12,7 @@ import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 import { ModeratorComponent } from './moderator/moderator.component';
 import { BasketPageComponent } from './basket-page/basket-page.component';
 import { FavoritesPageComponent } from './favorites-page/favorites-page.component';
+import { BrowseProductsComponent } from './browse-products/browse-products.component';
 export function initializeAuth(authService: AuthService) {
   return () => authService.init();
 }
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [RoleGuard], data: { role: ['Admin'] } },
   { path: 'moderator', component: ModeratorComponent, canActivate: [RoleGuard], data: { role: ['Admin', 'Moderator' ]} }, 
   { path: 'product', component: ProductPageComponent },
+  { path: 'browse-products', component: BrowseProductsComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'basket', component: BasketPageComponent },

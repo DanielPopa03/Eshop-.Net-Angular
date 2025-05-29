@@ -82,13 +82,17 @@ export class ProductService {
         });
     }
 
-  getProductById(productId: number) : Observable<any> {
-    return this.http.get(`${this.baseUrl}/Product/GetProduct`, {
-      params: {
-        productId
-      }
-    })
-  }
+    getFilteredProducts(filterParams: any): Observable<any> {
+      return this.http.post<any>(`${this.baseUrl}/Product/GetPagedFilteredProducts`, filterParams);
+    }
+
+    getProductById(productId: number) : Observable<any> {
+      return this.http.get(`${this.baseUrl}/Product/GetProduct`, {
+        params: {
+          productId
+        }
+      })
+    }
 
     submitReview(productId: number, rating: number, text: string): Observable < any > {
         return this.http.post<any>('https://localhost:7060/Product/SubmitReview', {
@@ -97,4 +101,8 @@ export class ProductService {
             text: text
         });
     }
+
+  
+  
+  
 }

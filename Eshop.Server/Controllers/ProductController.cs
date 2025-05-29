@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Eshop.Server.Controllers
 {
@@ -77,6 +78,25 @@ namespace Eshop.Server.Controllers
             try
             {
                 var (items, totalPages) = await productService.GetPagedProductsOfSupplierAsync(supplierId, pageIndex-1, pageSize);
+
+                return Ok(new { items, totalPages });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to fetch products: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpPost]
+        [Route("GetPagedFilteredProducts")]
+        public async Task<IActionResult> GetPagedFilteredProducts([FromBody] FilterParamDto dto)
+        {
+            try
+            {
+
+                var (items, totalPages) = await productService.GetPagedFilteredProducts(dto);
 
                 return Ok(new { items, totalPages });
             }

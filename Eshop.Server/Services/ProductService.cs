@@ -1,5 +1,6 @@
 ﻿using Eshop.Server.Data;
 using Eshop.Server.Models;
+using Eshop.Server.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
@@ -41,6 +42,104 @@ namespace Eshop.Server.Services
             newProduct.Attributes = attributeValues;
 
             return newProduct;
+        }
+
+        public async Task<(List<Product> Items, int TotalPages)> GetPagedFilteredProducts(FilterParamDto dto)
+        {
+            var query = context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Attributes)
+                .ThenInclude(a => a.Attribute)
+                .AsQueryable();
+
+            // Filter by Category
+            if (dto.CategoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == dto.CategoryId.Value);
+            }
+
+            // Apply Attribute Filters
+            if (!dto.Filters.IsNullOrEmpty())
+            {
+                foreach (var filter in dto.Filters)
+                {
+                    var attrId = filter.AttributeId;
+                    var filterValues = filter.Values?.Select(v => v.ToLower()).ToList();
+
+                    if (filterValues == null || filterValues.Count == 0)
+                        continue;
+
+                    query = query.Where(p => p.Attributes.Any(attr =>
+                        attr.AttributeId == attrId &&
+                        (
+                            (attr.Attribute.TypeOfFilter == "Range" &&
+                             filterValues.Count == 2 &&
+                             attr.Value != null &&
+                             filterValues[0] != null &&
+                             filterValues[1] != null &&
+                             string.Compare(attr.Value, filterValues[0]) >= 0 &&
+                             string.Compare(attr.Value, filterValues[1]) <= 0) ||
+
+                            ((attr.Attribute.TypeOfFilter == "Search-Dropdown" || attr.Attribute.TypeOfFilter == "Dropdown") &&
+                             filterValues.Contains(attr.Value.ToLower())) ||
+
+                            (attr.Attribute.TypeOfFilter == "Boolean" &&
+                             filterValues.Contains("true") && attr.Value.ToLower() == "true")
+                        )
+                    ));
+                }
+            }
+
+
+            // Apply Price Filter
+            if (!string.IsNullOrEmpty(dto.PriceFilter) && dto.PriceFilter.Contains("-"))
+            {
+                var parts = dto.PriceFilter.Split('-');
+                if (int.TryParse(parts[0], out int min) && int.TryParse(parts[1], out int max))
+                {
+                    query = query.Where(p => p.Price >= min && p.Price <= max);
+                }
+            }
+
+            // Apply Stock Filter
+            if (!string.IsNullOrEmpty(dto.StockFilter) && int.TryParse(dto.StockFilter, out int stockMin))
+            {
+                query = query.Where(p => p.Stock >= stockMin);
+            }
+
+            // Apply Sorting
+            if (dto.OrderBy?.ToUpper() == "ASC")
+                query = query.OrderBy(p => p.Price);
+            else if (dto.OrderBy?.ToUpper() == "DES")
+                query = query.OrderByDescending(p => p.Price);
+
+            // Total Count for pagination
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)dto.PageSize);
+
+            // Pagination
+            var items = await query
+                .Skip((dto.PageIndex - 1) * dto.PageSize)
+                .Take(dto.PageSize)
+                .ToListAsync();
+
+            return (items, totalPages);
+        }
+
+        private bool IsInRange(string attrValue, string filterRange)
+        {
+            if (!filterRange.Contains("-")) return false;
+
+            var parts = filterRange.Split('-');
+            if (parts.Length != 2) return false;
+
+            if (int.TryParse(attrValue, out int actual) &&
+                int.TryParse(parts[0], out int min) &&
+                int.TryParse(parts[1], out int max))
+            {
+                return actual >= min && actual <= max;
+            }
+            return false;
         }
 
         public async Task<(List<Product> Items, int TotalPages)> GetPagedProductsOfSupplierAsync(int supplierId, int pageIndex, int pageSize)

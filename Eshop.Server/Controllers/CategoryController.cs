@@ -107,5 +107,21 @@ namespace Eshop.Server.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("GetValuesForAttributes")]
+        public async Task<IActionResult> GetValuesForAttributes([FromBody] List<int> AttributeIds)
+        {
+            try
+            {
+                var arrVal = await categoryService.GetValuesForAttributes(AttributeIds);
+                return Ok(arrVal);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to delete category: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
     }
 }

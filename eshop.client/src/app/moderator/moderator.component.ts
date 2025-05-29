@@ -248,9 +248,10 @@ export class ModeratorComponent implements OnInit {
   }
 
   submitProduct(): void {
+    console.log(this.newProduct['attributeValues'])
     const attributes = this.newProduct['attributeValues']
-      .filter(attr => attr.value && attr.value.trim() !== '')
-      .map(attr => ({ attributeId: attr.attributeId, value: attr.value }));
+      .filter(attr => attr.value && String(attr.value).trim() !== '')
+      .map(attr => ({ attributeId: attr.attributeId, value: String(attr.value) }));
 
     console.log("atribute fra",attributes)
     const payload: Product = {

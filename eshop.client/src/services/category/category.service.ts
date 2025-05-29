@@ -25,4 +25,8 @@ export class CategoryService {
   deleteCategory(id: number) {
     return this.http.delete(`https://localhost:7060/Category/DeleteCategory/${id}`);
   }
+
+  getValuesForAttributes(ids: number[]) {
+    return this.http.post(`https://localhost:7060/Category/GetValuesForAttributes`, ids);
+  }
 }
