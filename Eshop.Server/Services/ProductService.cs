@@ -1,6 +1,7 @@
 ﻿using Eshop.Server.Data;
 using Eshop.Server.Models;
 using Eshop.Server.Models.DTO;
+using Eshop.Server.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
@@ -278,5 +279,72 @@ namespace Eshop.Server.Services
                 .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.Id == productId);
         }
+
+        public async Task<bool> CheckoutBasket(BasketCheckoutDto Basket)
+        {
+            Order order = new Order(Basket); /// takes client and address info
+
+            foreach (BoughtItemDto boughtItem in Basket.boughtItems)
+            {
+                if (boughtItem.Quantity <= 0)
+                {
+                    context.ChangeTracker.Clear();
+                    throw new Exception("Invalid -- negative -- quantity for product");
+                }
+
+                Product? product = await context.Products.FindAsync(boughtItem.ProductId);
+
+                if(product == null)
+                {
+                    context.ChangeTracker.Clear();
+                    throw new ProductNotFoundException(boughtItem.ProductId);
+                }
+
+                if(product.Stock < boughtItem.Quantity)
+                {
+                    context.ChangeTracker.Clear();
+                    throw new NotEnoughStockException(product.Name);
+                }
+                
+                product.Stock -= (uint)boughtItem.Quantity;
+
+                OrderedProduct orderedProduct = new OrderedProduct();
+                orderedProduct.ProductId = boughtItem.ProductId;
+                orderedProduct.Quantity = (uint)boughtItem.Quantity;
+                orderedProduct.Order = order;
+                context.OrderedProducts.Add(orderedProduct);
+            }
+            await context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<List<Product>> GetBestSoldProductsByCategory()
+        {
+            // Step 1: Get best sold product IDs per category
+            var bestSoldIds = await context.Products
+                .Select(p => new
+                {
+                    p.CategoryId,
+                    p.Id,
+                    TotalSold = p.OrderedProducts.Sum(op => (int?)op.Quantity) ?? 0
+                })
+                .GroupBy(x => x.CategoryId)
+                .Select(g => g
+                    .OrderByDescending(x => x.TotalSold)
+                    .Select(x => x.Id)
+                    .FirstOrDefault())
+                .ToListAsync();
+
+            // Step 2: Fetch full product entities with includes (including Category)
+            var bestSoldProducts = await context.Products
+                .Where(p => bestSoldIds.Contains(p.Id))
+                .Include(p => p.Images)
+                .Include(p => p.OrderedProducts)
+                .Include(p => p.Category) // <-- Include the category here
+                .ToListAsync();
+
+            return bestSoldProducts;
+        }
+
+
     }
 }

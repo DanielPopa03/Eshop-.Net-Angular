@@ -47,7 +47,7 @@
       <span class="text-2xl font-extrabold text-[#FCF259]">{{ getTotalPrice() | currency }}</span>
     </div>
 
-    <button (click)="checkout()"
+    <button (click)="openShippingModal()"
             class="mt-6 w-full bg-[#FCF259] text-[#4A102A] font-bold py-3 rounded hover:bg-[#E6D945] transition">
       Proceed to Checkout
     </button>
@@ -57,5 +57,35 @@
   <ng-template #emptyBasket>
     <p class="text-center text-[#FCF259] font-semibold text-lg">Your basket is empty.</p>
   </ng-template>
+
+  <!-- Shipping Info Modal -->
+  <div *ngIf="showShippingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white text-[#4A102A] rounded-lg p-8 w-full max-w-md shadow-lg relative">
+      <h2 class="text-2xl font-bold mb-4">Enter Shipping Information</h2>
+      <form (ngSubmit)="submitShipping()" #shippingForm="ngForm">
+        <div class="mb-3">
+          <label class="block font-semibold mb-1">City</label>
+          <input type="text" class="w-full border rounded px-3 py-2" [(ngModel)]="shippingCity" name="city" required />
+        </div>
+        <div class="mb-3">
+          <label class="block font-semibold mb-1">Street</label>
+          <input type="text" class="w-full border rounded px-3 py-2" [(ngModel)]="shippingStreet" name="street" required />
+        </div>
+        <div class="mb-3">
+          <label class="block font-semibold mb-1">County</label>
+          <input type="text" class="w-full border rounded px-3 py-2" [(ngModel)]="shippingCounty" name="county" required />
+        </div>
+        <div class="mb-3">
+          <label class="block font-semibold mb-1">Postal Code</label>
+          <input type="text" class="w-full border rounded px-3 py-2" [(ngModel)]="shippingPostalCode" name="postalCode" required />
+        </div>
+        <div class="flex justify-end space-x-2 mt-6">
+          <button type="button" (click)="closeShippingModal()" class="px-4 py-2 rounded bg-gray-300 text-[#4A102A]">Cancel</button>
+          <button type="submit" [disabled]="!shippingForm.form.valid" class="px-4 py-2 rounded bg-[#4A102A] text-[#FCF259] font-bold">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
 </div>

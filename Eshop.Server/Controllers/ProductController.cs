@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
+using Eshop.Server.Exceptions;
 
 namespace Eshop.Server.Controllers
 {
@@ -208,5 +209,40 @@ namespace Eshop.Server.Controllers
                 return StatusCode(500, "Internal server error" + ex);
             }
         }
+
+        [HttpPost]
+        [Route("CheckoutBasket")]
+        public async Task<IActionResult> CheckoutBasket([FromBody] BasketCheckoutDto Basket)
+        {
+            try
+            {
+                bool success = await productService.CheckoutBasket(Basket);
+                if (success)
+                    return Ok();
+                else
+                    return BadRequest();
+            }
+            catch (NotEnoughStockException ex)
+            {
+                return BadRequest("Not enough stock for item with name: " + ex.ProductName);
+            }
+            catch (ProductNotFoundException ex)
+            {
+                return BadRequest("Product with id not found: " + ex.ProductId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("BestSoldByCategory")]
+        public async Task<IActionResult> GetBestSoldByCategory()
+        {
+            var products = await productService.GetBestSoldProductsByCategory();
+            return Ok(products);
+        }
+
+
     }
 }

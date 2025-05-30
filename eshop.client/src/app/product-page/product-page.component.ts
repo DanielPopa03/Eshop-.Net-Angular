@@ -53,6 +53,15 @@ export class ProductPageComponent {
     });
   }
 
+  addToRecentlyViewed(product: any) {
+    let viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+    viewed = viewed.filter((p: any) => p.id !== product.id); // Remove if already exists
+    viewed.unshift(product); // Add to front
+    viewed = viewed.slice(0, 10); // Keep only last 10
+    localStorage.setItem('recentlyViewed', JSON.stringify(viewed));
+  }
+
+
   fetchProduct(id: string | null) {
     if (!id) return;
     let idNumber = parseInt(id);
@@ -66,6 +75,7 @@ export class ProductPageComponent {
         }
 
         this.fetching = false;
+        this.addToRecentlyViewed(this.product);
 
         this.product.reviews.forEach((review: Review) => {
           this.userService.getUserNameById(review.userId).subscribe(name => {

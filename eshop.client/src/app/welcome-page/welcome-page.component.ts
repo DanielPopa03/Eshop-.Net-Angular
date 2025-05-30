@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ProductService } from '../../services/product/product.service';
 
 @Component({
   selector: 'app-welcome-page',
@@ -13,7 +14,16 @@ export class WelcomePageComponent {
     'promo/promo3.png',
   ];
 
+  products: any[] = [];
   currentIndex = 0;
+  constructor(private productService: ProductService) { }
+
+  ngOnInit() {
+    this.loadRecentlyViewed();
+    this.productService.getBestSoldByCategory().subscribe(products => {
+      this.products = products;
+    });
+  }
 
   next() {
     this.currentIndex = (this.currentIndex + 1) % this.images.length;
@@ -28,14 +38,15 @@ export class WelcomePageComponent {
   }
 
 
-  products = [
-    { title: 'Gaming PC Case', image: '/assets/images/case.jpg', price: 129.99, id: 1 },
-    { title: 'Tool Kit', image: '/assets/images/tools.jpg', price: 89.50, id: 1 },
-    { title: 'Solar Camera', image: '/assets/images/camera.jpg', price: 59.00, id: 1 },
-    { title: 'White Storage Bench', image: '/assets/images/bench.jpg', price: 99.99, id: 1 },
-    { title: 'Air Purifier', image: '/assets/images/purifier.jpg', price: 149.00, id: 1 },
-    { title: 'Paint Sprayer', image: '/assets/images/sprayer.jpg', price: 199.00, id: 1 },
-  ];
+  recentlyViewed: any[] = [];
+
+  
+
+  loadRecentlyViewed() {
+    const viewed = localStorage.getItem('recentlyViewed');
+    this.recentlyViewed = viewed ? JSON.parse(viewed) : [];
+    console.log(this.recentlyViewed);
+  }
 
   scrollRight() {
     const container = document.querySelector('.overflow-x-auto');

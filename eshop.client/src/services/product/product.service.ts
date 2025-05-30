@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product } from '../../models/product/product';
 import { AuthService } from '../auth-service/auth.service';
+import { CheckedOutItemDto } from '../../models/DTO/checked-out-item-dto/checked-out-item-dto';
 
 @Injectable({
     providedIn: 'root'
@@ -102,7 +103,20 @@ export class ProductService {
         });
     }
 
+  checkoutBasket(checkedOutItems: CheckedOutItemDto[], shippingCounty: string, shippingCity: string, shippingStreet: string, shippingPostalCode: string): Observable<any> {
+    console.log(JSON.stringify(checkedOutItems));
+    return this.http.post<any>('https://localhost:7060/Product/CheckoutBasket', {
+      boughtItems: checkedOutItems,
+      clientId: this.authService.idOfUser(),
+      shippingCounty: shippingCounty,
+      shippingCity: shippingCity,
+      shippingStreet: shippingStreet,
+      shippingPostalCode: shippingPostalCode
+    });
+  }
   
   
-  
+  getBestSoldByCategory(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/Product/BestSoldByCategory`);
+  }
 }

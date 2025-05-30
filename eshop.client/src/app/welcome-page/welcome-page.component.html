@@ -38,15 +38,36 @@
           <a [routerLink]="['/product']"
              [queryParams]="{ id: product.id }"
              class="block">
-            <img [src]="product.image" alt="{{ product.title }}"
+            <img [src]="'https://localhost:7060' + product.images[0].imageUrl" alt="{{ product.name }}"
                  class="w-full h-40 object-contain mb-3 rounded-md bg-white p-2" />
-            <h3 class="font-semibold text-lg truncate">{{ product.title }}</h3>
+            <h3 class="font-semibold text-lg truncate">{{ product.name }}</h3>
+            <div>Category: {{ product.category?.name }}</div>
           </a>
           <p class="text-[#FCF259] font-bold mt-1">{{ product.price | currency }}</p>
         </div>
       </div>
 
     </div>
+
+    <div *ngIf="recentlyViewed.length > 0" class="mt-16 px-4 py-8">
+      <h2 class="text-2xl font-bold text-center text-[#FCF259] mb-6">Recently Viewed</h2>
+      <div class="flex overflow-x-auto space-x-6 pb-2 scrollbar-thin scrollbar-thumb-[#FCF259]/60 scrollbar-track-transparent">
+        <div *ngFor="let product of recentlyViewed"
+             class="shrink-0 w-60 bg-[#85193C] rounded-lg shadow-lg text-white p-4 hover:scale-105 transition-transform duration-300 relative">
+          <div class="relative z-0">
+            <a [routerLink]="['/product']"
+               [queryParams]="{ id: product.id }"
+               class="block">
+              <img [src]="'https://localhost:7060' + product.images[0].imageUrl" alt="{{ product.name }}"
+                   class="w-full h-40 object-contain mb-3 rounded-md bg-white p-2" />
+              <h3 class="font-semibold text-lg truncate">{{ product.name }}</h3>
+            </a>
+            <p class="text-[#FCF259] font-bold mt-1">{{ product.price | currency }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>

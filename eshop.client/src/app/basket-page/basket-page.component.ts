@@ -6,16 +6,25 @@ import { ProductService } from '../../services/product/product.service';
 import { UserService } from '../../services/user/user.service';
 import { BasketService } from '../../services/basket/basket.service';
 import { CommonModule } from '@angular/common';
+import { CheckedOutItemDto } from '../../models/DTO/checked-out-item-dto/checked-out-item-dto';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-basket-page',
   standalone: true,
   templateUrl: './basket-page.component.html',
   styleUrls: ['./basket-page.component.css'],
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
 })
 export class BasketPageComponent implements OnInit {
   basket: any[] = [];
+  showShippingModal = false;
+  shippingCity: string = '';
+  shippingStreet: string = '';
+  shippingCounty: string = '';
+  shippingPostalCode: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -23,6 +32,7 @@ export class BasketPageComponent implements OnInit {
     private productService: ProductService,
     private userService: UserService,
     private basketService: BasketService,
+    private snackBar: MatSnackBar,
     private router: Router
   ) { }
 
@@ -49,13 +59,60 @@ export class BasketPageComponent implements OnInit {
     return this.basket.reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
+  openShippingModal() {
+    this.showShippingModal = true;
+  }
+
+  closeShippingModal() {
+    this.showShippingModal = false;
+  }
+
+ 
+  submitShipping() {
+    this.showShippingModal = false;
+    this.checkout();
+  }
+
   checkout() {
     // Implement your checkout flow here. For now, let's just clear the basket and redirect.
-    alert('Thank you for your purchase!');
-    this.basket = [];
-    this.updateBasketStorage();
-    this.basketService.updateBasketCount();
-    this.router.navigate(['/']);
+
+    if (this.shippingCity === '' || this.shippingStreet === '' || this.shippingCounty === '' || this.shippingPostalCode === '')
+    {
+      alert('Please fill in all shipping details.');
+      return;
+    }
+
+    let basketItems: CheckedOutItemDto[] = []
+
+    this.basket.map(item =>
+      basketItems.push(new CheckedOutItemDto(item.id, item.quantity))
+    );
+
+    this.productService.checkoutBasket(basketItems, this.shippingCounty, this.shippingCity, this.shippingStreet, this.shippingPostalCode).subscribe({
+      next: (res: any) => {
+        console.log(res);
+        this.snackBar.open('Checkout successful! Thank you for your purchase.', 'Close', {
+          duration: 3000,
+          panelClass: ['snackbar-success']
+        });
+
+        this.basket = [];
+        this.updateBasketStorage();
+        this.basketService.updateBasketCount();
+
+        alert('Thank you for your purchase!');
+
+        this.router.navigate(['/']);
+      },
+      error: (err: any) => {
+        
+        const errorMsg = err?.error || 'Checkout failed. Please try again.';
+        this.snackBar.open(errorMsg, 'Close', {
+          duration: 3000,
+          panelClass: ['snackbar-error']
+        });
+      }
+    });
   }
 
   increaseQuantity(item: any) {
