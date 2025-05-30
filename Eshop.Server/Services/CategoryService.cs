@@ -51,20 +51,29 @@ namespace Eshop.Server.Services
 
             category.Name = dto.Name;
 
-            var attributeIds = category.Attributes.Select(a => a.Id).ToList();
-
-            var productAttributesToDelete = dbContext.ProductAttributes
-                .Where(pa => attributeIds.Contains(pa.AttributeId));
-            dbContext.ProductAttributes.RemoveRange(productAttributesToDelete);
-
-            dbContext.AttributeCats.RemoveRange(category.Attributes);
-
-            category.Attributes = dto.Attributes.Select(attr => new AttributeCat
+            foreach (var attrDto in dto.Attributes)
             {
-                Name = attr.Name,
-                TypeOfFilter = attr.TypeOfFilter,
-                CategoryId = category.CategoryId
-            }).ToList();
+                AttributeCat? existingAttr = null;
+                if (attrDto.Id.HasValue)
+                    existingAttr = category.Attributes.FirstOrDefault(a => a.Id == attrDto.Id.Value);
+                if (existingAttr == null)
+                    existingAttr = category.Attributes.FirstOrDefault(a => a.Name == attrDto.Name);
+
+                if (existingAttr != null)
+                {
+                    existingAttr.Name = attrDto.Name;
+                    existingAttr.TypeOfFilter = attrDto.TypeOfFilter;
+                }
+                else
+                {
+                    category.Attributes.Add(new AttributeCat
+                    {
+                        Name = attrDto.Name,
+                        TypeOfFilter = attrDto.TypeOfFilter,
+                        CategoryId = category.CategoryId
+                    });
+                }
+            }
 
             await dbContext.SaveChangesAsync();
             return category;

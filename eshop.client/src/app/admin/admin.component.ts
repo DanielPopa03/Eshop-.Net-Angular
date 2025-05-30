@@ -172,7 +172,7 @@ export class AdminComponent implements OnInit {
 
   newCategory = {
     name: '',
-    attributes: [] as { name: string; typeOfFilter: string }[]
+    attributes: [] as { id: number | undefined; name: string; typeOfFilter: string }[]
   };
 
   loadCategories(): void {
@@ -196,6 +196,7 @@ export class AdminComponent implements OnInit {
       this.newCategory = {
         name: category.name,
         attributes: category.attributes.map(a => ({
+          id: a.id,
           name: a.name,
           typeOfFilter: a.typeOfFilter
         }))
@@ -217,7 +218,7 @@ export class AdminComponent implements OnInit {
   }
 
   addAttribute(): void {
-    this.newCategory.attributes.push({ name: '', typeOfFilter: 'Dropdown' });
+    this.newCategory.attributes.push({id:undefined, name: '', typeOfFilter: 'Dropdown' });
   }
 
   removeAttribute(index: number): void {
@@ -229,6 +230,7 @@ export class AdminComponent implements OnInit {
     categoryToSubmit.name = this.newCategory.name;
     categoryToSubmit.attributes = this.newCategory.attributes.map(attr => {
       const a = new AttributeCat();
+      a.id = attr.id;
       a.name = attr.name;
       a.typeOfFilter = attr.typeOfFilter;
       return a;
