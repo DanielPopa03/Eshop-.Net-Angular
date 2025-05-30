@@ -40,12 +40,30 @@ export class LoginPageComponent {
       error: (err: any) => {
         const msg = err?.error?.message || 'Invalid credentials.';
         this.snackBar.open(msg, 'Close', { duration: 3000, panelClass: ['bg-red-600', 'text-white'] });
+        this.isLoading = false;
       }
     });
   }
 
 
   onSignUpSubmit(): void {
+    let emailMatch = this.signUpEmail.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+    if (!emailMatch) {
+      alert("Invalid email.");
+      return;
+    }
+
+    let phoneMatch = this.phoneNumber.match(/^(?:\+4)?07\d{8}$/);
+    if (!phoneMatch) {
+      alert("Invalid phone number.");
+      return;
+    }
+
+    if (this.passwordSignIn.length < 8) {
+      alert('Password must be at least 8 characters long.');
+      return;
+    }
+
     let userDto = new UserDto({
       email: this.signUpEmail,
       lastName: this.lastName,

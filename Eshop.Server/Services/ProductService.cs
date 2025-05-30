@@ -223,6 +223,7 @@ namespace Eshop.Server.Services
         public async Task<bool> DeleteProductAsync(int productId)
         {
             var product = await context.Products
+                .Include(p => p.Attributes)
                 .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
@@ -242,6 +243,7 @@ namespace Eshop.Server.Services
                 }
             }
 
+            context.ProductAttributes.RemoveRange(product.Attributes);
             context.ProductImages.RemoveRange(product.Images);
             context.Products.Remove(product);
 

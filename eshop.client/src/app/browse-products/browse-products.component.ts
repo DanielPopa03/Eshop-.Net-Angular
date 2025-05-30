@@ -16,8 +16,8 @@ export class BrowseProductsComponent {
 
   filters = {
     orderBy: 'ASC',
-    minPrice: null,
-    maxPrice: null,
+    minPrice: null as number | null,
+    maxPrice: null as number | null,
     stock: null as number | null,
     categoryId: null,
     pageIndex: 1,
@@ -71,10 +71,10 @@ export class BrowseProductsComponent {
         const matching = response.find((r: any) => r.attributeId === attr.id);
         if (!matching) continue;
 
-        if (attr.typeOfFilter === 'Range' && matching.values?.length === 2) {
-          attr.min = Number(matching.values[0]);
-          attr.max = Number(matching.values[1]);
-        }
+        //if (attr.typeOfFilter === 'Range' && matching.values?.length === 2) {
+        //  attr.min = Number(matching.values[0]);
+        //  attr.max = Number(matching.values[1]);
+        //}
 
         if (['Dropdown', 'Search-Dropdown'].includes(attr.typeOfFilter)) {
           attr.options = matching.values || [];
@@ -109,6 +109,27 @@ export class BrowseProductsComponent {
 
 
   onFilterChange(): void {
+    if (this.filters.minPrice != null && this.filters.minPrice < 0) {
+      this.filters.minPrice = 0;
+    }
+
+    if (this.filters.maxPrice != null && this.filters.maxPrice < 0)
+      this.filters.maxPrice = 0;
+
+    if (this.filters.minPrice != null && this.filters.maxPrice != null && this.filters.minPrice > this.filters.maxPrice) {
+      this.filters.maxPrice = this.filters.minPrice;
+    }
+
+    if (this.filters.stock != null && this.filters.stock < 0) {
+      this.filters.stock = null;
+    }
+
+    for (var dynamicAttr of this.dynamicAttributes)
+      if (dynamicAttr.typeOfFilter == 'Range') {
+        if (dynamicAttr.min != null && dynamicAttr.max != null && dynamicAttr.min > dynamicAttr.max)
+          dynamicAttr.max = dynamicAttr.min;
+      }
+
     const filterDto: any = {
       pageIndex: this.filters.pageIndex,
       pageSize: this.filters.pageSize,
